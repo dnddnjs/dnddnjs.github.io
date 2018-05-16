@@ -1,7 +1,7 @@
 # The primary author of this blog.
 # Must be the same as `author` in `_config.yml`.
 # Change `qwtel` to your shortname (used in the front matter to set a page's author, e.g. `author: qwtel`).
-zzsza:
+dnddnjs:
   name:              woongwon lee
   email:             dnddnjs11@naver.com
 
@@ -58,7 +58,7 @@ zzsza:
     # stumbleupon:     <username>
     # paypal:          <username>
     email:           mailto:dnddnjs11@naver.com
-    rss:             https://dnddnjs.github.io/feed.xml
+    # rss:             https://dnddnjs.github.io/feed.xml
 
 # Another author
 mdo:
