@@ -1,10 +1,10 @@
 ---
 layout: list
-title: Data
-slug: data
+title: Coding
+slug: coding
 menu: true
 submenu: true
 order: 2
 description: >
-  Data와 관련된 글을 작성하는 공간
+  코딩에 관련된 지식
 ---

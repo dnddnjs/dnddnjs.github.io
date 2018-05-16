@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: Lecture
-slug: lecture
-category: etc
+title: cs231n
+slug: cs231n
+category: lecture
 menu: false
 order: 1
 ---

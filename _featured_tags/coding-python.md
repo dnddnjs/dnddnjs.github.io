@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: Book
-slug: book
-category: etc
+title: Python
+slug: Python
+category: coding
 menu: false
 order: 2
 ---

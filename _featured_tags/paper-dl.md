@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: BigQuery
-slug: BigQuery
-category: gcp
+title: Deep-Learning
+slug: dl
+category: paper
 menu: false
 order: 2
 ---

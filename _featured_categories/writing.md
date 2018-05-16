@@ -1,10 +1,10 @@
 ---
 layout: list
-title: Diary
-slug: diary
+title: Writing
+slug: writing
 menu: true
 submenu: false
-order: 1
+order: 3
 description: >
   일기장
 ---
