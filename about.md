@@ -17,7 +17,7 @@ order: 10
 
 글쓰는 것을 즐기며 개발자의 글쓰기 모임인 [글또](https://www.facebook.com/groups/375431516259701/)를 운영하고 있습니다. 또한 Google Cloud의 [BigQuery 그룹](https://www.facebook.com/groups/bigquery/)의 부운영자를 맡고 있습니다
 
-
+<img src="https://www.dropbox.com/s/753b7s26me0hv38/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-16%2022.18.02.png?raw=1">
 ## 경력
 
 |          	| 기간          	| 담당 업무                                                                                                                      	|
