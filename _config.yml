@@ -2,7 +2,7 @@
 #  User configuration
 # -----------------------------------------------------------------------------
 
-title:               Reinforce Yourself
+title:               Woongwon Lee
 
 # The unique resource location of your page.
 # Set to `https://<username>.github.io` when hosting on GitHub Pages
@@ -18,7 +18,7 @@ tagline:             Machine Learning Engineer
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
 description:         >
-  인공지능을 통해 세상을 더 좋게 만들고 싶은 엔지니어
+  Reinforce Yourself
 
 # This should be the same author as first entry in `_data/authors.yml`
 author:
@@ -44,7 +44,7 @@ google_fonts:        Lato
 
 # Set your Google Analytics id to receive `pageview` events.
 # To remove Google Anaylics from your page, remove the line below.
-google_analytics:    UA-110573232-1
+# google_analytics:    UA-110573232-1
 
 # Setting a disqus shortname will enable the comment section on pages with `comments: true` in the front matter
 disqus_shortname:    dnddnjs
