@@ -15,6 +15,7 @@ comments: true
 - 함께 보면 좋을 논문: [policy distillation(2015)](https://arxiv.org/pdf/1511.06295.pdf)
 
 ## 1. Abstract
+---
 - 이전에 학습한 "teacher" agent가 새롭게 학습하는 "student" agent를 kickstart
 - 이를 위해 policy distillation, population-based training의 아이디어를 차용
 - 본 논문에서 제시하는 방법은 teacher와 student agent의 architecture에 제약을 가하지 않음. student가 스스로 teacher를 surpass 하도록 함
@@ -23,12 +24,14 @@ comments: true
 - 바닥부터 학습한 agent에 비해서 10배 빠른 학습, 42% 높은 성능
 
 ## 2. Conclusion
+---
 - policy-based RL 환경에서 implement하기 쉬움
 - policy distillation에 비교해서 student가 스스로 teacher로부터의 조언을 가지고 learning objective를 균형잡음. 따라서 teacher보다 더 좋은 성능을 냄.
 - 이전에 학습한 agent의 지식을 흡수하고 사용하는 새로운 agent --> 새로운 연구 방향
 - 혼자서 학습하지 못하는 complex task도 학습 가능
 
 ## 3. Introduction
+---
 - 환경에서 여러가지를 경험하고 그 경험을 모으는 과정이 time-consuming & risk가 있음
 - complex task를 학습하려 할 때 이런 점이 문제가 됌. 거의 billion 단위의 학습 step 소요.
 - 다른 agent를 teacher로 해서 어떻게 하면 배울 수 있을까가 관심사
@@ -39,6 +42,7 @@ comments: true
 - experiment는 뒤에서 언급
 
 ## 4. Kickstarking RL
+---
 ### 4.1 Knowledge transfer 
 - 기본적으로 pre-trained agent가 이용가능하다고 가정 (혹은 특정 specific task에 특화된 expert agent)
 - 특정되어있지 않은 구조를 가진 새로운 agent를 학습하고 싶은데 teacher를 이용해서 (1) faster learning (2) higher performance 를 가지게 하고 싶음
@@ -65,8 +69,9 @@ $$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
 
 - policy distillation과는 달리 trajectory를 student policy에 따라 sampling 함
 - auxiliary loss는 다른 관점에서 보면 A3C의 entropy regularization과 같은 맥락으로 볼 수 있음
-	- A3C loss: $$D_{KL}(\pi_S(a|x_t, w) || U)$$, $$U$$는 uniform distribution
-	- distill loss: $$D_{KL}(\pi_T(a|x_t, w) || \pi_S(a|x_t, w))$$
+	- A3C loss: $$D_{KL}(\pi_S(a|x_t, w)||U)$$, $$U$$는 uniform distribution
+	- distill loss: $$D_{KL}(\pi_T(a|x_t, w)||\pi_S(a|x_t, w))$$
+	
 - 다음 그림에서 첫 번째 그림은 모든 task를 한꺼번에 학습하는 보통의 RL agent 그림임. 두 번째 그림은 student 하나, teacher 하나인 에이전트임. 세 번째는 student 하나, teacher 3인 상황에서의 학습을 그린 것임. knowledge transfer의 흐름을 보기. 
 <img src="https://www.dropbox.com/s/jd85p8mjbkp6yta/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-17%2018.06.09.png?raw=1">
 
