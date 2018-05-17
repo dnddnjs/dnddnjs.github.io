@@ -38,7 +38,8 @@ comments: true
 - policy distillation과 population based training의 아이디어를 합쳐봄(각각의 아이디어가 뭔지를 아는 것도 좋을 듯). policy distillation 과는 달리 student와 teacher architecture에 제약을 안주고 자동으로 teacher가 student에게 영향을 주도록 함.
 - experiment는 뒤에서 언급
 
-## 4. Kickstarking RL 
+## 4. Kickstarking RL
+### 4.1 Knowledge transfer 
 - 기본적으로 pre-trained agent가 이용가능하다고 가정 (혹은 특정 specific task에 특화된 expert agent)
 - 특정되어있지 않은 구조를 가진 새로운 agent를 학습하고 싶은데 teacher를 이용해서 (1) faster learning (2) higher performance 를 가지게 하고 싶음
 - 간단히 말하자면 student가 샘플링한 trajectory에 대해서 student policy와 teacher policy의 차이를 나타내는 auxiliary loss function을 고려한다. 
@@ -50,7 +51,7 @@ comments: true
 	- teacher policy: $$\pi_T$$
 	- teacher가 generate한 trajectory: $$(x_t)_{t>=0} $$
 	- student policy: $$\pi_S$$ parameterized by $$w$$
-	- student policy를 teacher policy에 가깝게 만드는 loss function: distill loss, 다음과 같다. $$H(^. || ^.)$$ 은 cross entropy를 의미함.
+	- student policy를 teacher policy에 가깝게 만드는 loss function: distill loss, 다음과 같다. $$H(||)$$ 은 cross entropy를 의미함.
 
 $$l_{distill}(w,x,t)=H(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
 	   
@@ -61,6 +62,32 @@ $$l_{distill}(w,x,t)=H(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
 
 $$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
 
-- policy distillation과는 달리 trajectory를 student policy에 따라 sampling 한다.
-- 
+- policy distillation과는 달리 trajectory를 student policy에 따라 sampling 함
+- auxiliary loss는 다른 관점에서 보면 A3C의 entropy regularization과 같은 맥락으로 볼 수 있음
+	- A3C loss: $$D_{KL}(\pi_S(a|x_t, w)||U)$$, $$U$$는 uniform distribution
+	- distill loss: $$D_{KL}(\pi_T(a|x_t, w)||\pi_S(a|x_t, w))$$
+- 다음 그림에서 첫 번째 그림은 모든 task를 한꺼번에 학습하는 보통의 RL agent 그림임. 두 번째 그림은 student 하나, teacher 하나인 에이전트임. 세 번째는 student 하나, teacher 3인 상황에서의 학습을 그린 것임. knowledge transfer의 흐름을 보기. 
 <img src="https://www.dropbox.com/s/jd85p8mjbkp6yta/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-17%2018.06.09.png?raw=1">
+
+### 4.2 Kickstarting Actor-Critic
+- A3C의 loss를 다시 표현해보겠음
+	- $$v_{t+1}$$ : value function target
+	- $$V(x_t|\theta)$$ : value approximation computed by critic network
+	- critic의 loss function: $$||V(x_t|\theta)-v_{t}||_2^2$$
+	 
+$$l_{A3C}(w, x, t)=log\pi_S(a_t|s_t, w)(r_t + \gamma v_{t+1} - V(x_t|\theta)) - \beta H(\pi_S(a|x_t, w))$$
+
+- 이 때, A3C Kickstarting loss는 다음과 같음
+
+$$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
+
+### 4.3 Population based training
+- Kickstarting에서 중요한 것은 바로 loss에서 $$\lambda_k$$의 자동 스케줄링임
+- 기존에는 사람이 직접 schedule을 짰는데 그러면 또 추가로 전문지식이 필요함
+- 만약 teacher가 한 agent가 아니고 여러 agent면 손으로 schedule 짜기가 더 어려움
+- population based training이 이것을 자동으로 해줌
+	- 다양한 hyper parameter를 가지는 population을 만듬
+	- 이 중에서 랜덤으로 골라서 학습
+	- 성능이 다른 놈보다 월등히 높은 놈이 있으먼 선택
+	- 선택한 놈의 hyper parameter로 바로 대체하기보다는 조금 이동함
+	- 
