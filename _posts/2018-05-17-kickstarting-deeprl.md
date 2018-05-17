@@ -58,19 +58,19 @@ comments: true
 	- student policy를 teacher policy에 가깝게 만드는 loss function: distill loss, 다음과 같다. 
 	- $$H$$ 은 cross entropy를 의미함.
 
-$$l_{distill}(w,x,t)=H(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
+$$l_{distill}(w,x,t)=H(\pi_T(a|x_t) \| \pi_S(a|x_t, w))$$
 	   
 - 하지만 단지 이 loss function은 student가 teacher를 모방하게 만들 뿐임.
 - student가 teacher로부터 도움을 받으면서 스스로 standard RL objective를 높이도록 하고 싶음
 - 보통 expected return을 많이 objective로 사용함: $$E_{\pi_S}[R]$$,  $$R=\sum_{t>=0}\gamma^tr_t$$
 - 따라서 expected return에 대한 loss term과 distill loss를 weighted sum한다. $$\lambda_k >= 0$$
 
-$$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
+$$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a|x_t) \| \pi_S(a|x_t, w))$$
 
 - policy distillation과는 달리 trajectory를 student policy에 따라 sampling 함
 - auxiliary loss는 다른 관점에서 보면 A3C의 entropy regularization과 같은 맥락으로 볼 수 있음
-	- A3C loss: $$D_{KL}(\pi_S(a|x_t, w)||U)$$, $$U$$는 uniform distribution
-	- distill loss: $$D_{KL}(\pi_T(a|x_t, w)||\pi_S(a|x_t, w))$$
+	- A3C loss: $$D_{KL}(\pi_S(a | x_t, w) \| U)$$, $$U$$는 uniform distribution
+	- distill loss: $$D_{KL}(\pi_T(a | x_t, w) \| \pi_S(a | x_t, w))$$
 	
 - 다음 그림에서 첫 번째 그림은 모든 task를 한꺼번에 학습하는 보통의 RL agent 그림임. 두 번째 그림은 student 하나, teacher 하나인 에이전트임. 세 번째는 student 하나, teacher 3인 상황에서의 학습을 그린 것임. knowledge transfer의 흐름을 보기. 
 <img src="https://www.dropbox.com/s/jd85p8mjbkp6yta/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-17%2018.06.09.png?raw=1">
@@ -78,14 +78,14 @@ $$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
 ### 4.2 Kickstarting Actor-Critic
 - A3C의 loss를 다시 표현해보겠음
 	- $$v_{t+1}$$ : value function target
-	- $$V(x_t|\theta)$$ : value approximation computed by critic network
-	- critic의 loss function: $$||V(x_t|\theta)-v_{t}||_2^2$$
+	- $$V(x_t | \theta)$$ : value approximation computed by critic network
+	- critic의 loss function: $$\|V(x_t | \theta)-v_{t}\|_2^2$$
 	 
-$$l_{A3C}(w, x, t)=log\pi_S(a_t|s_t, w)(r_t + \gamma v_{t+1} - V(x_t|\theta)) - \beta H(\pi_S(a|x_t, w))$$
+$$l_{A3C}(w, x, t)=log\pi_S(a_t | s_t, w)(r_t + \gamma v_{t+1} - V(x_t | \theta)) - \beta H(\pi_S(a | x_t, w))$$
 
 - 이 때, A3C Kickstarting loss는 다음과 같음
 
-$$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a|x_t)||\pi_S(a|x_t, w))$$
+$$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a|x_t) \| \pi_S(a|x_t, w))$$
 
 ### 4.3 Population based training
 - Kickstarting에서 중요한 것은 바로 loss에서 $$\lambda_k$$의 자동 스케줄링임
