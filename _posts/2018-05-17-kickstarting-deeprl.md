@@ -65,7 +65,7 @@ $$l_{distill}(w,x,t)=H(\pi_T(a|x_t) \| \pi_S(a|x_t, w))$$
 - 보통 expected return을 많이 objective로 사용함: $$E_{\pi_S}[R]$$,  $$R=\sum_{t>=0}\gamma^tr_t$$
 - 따라서 expected return에 대한 loss term과 distill loss를 weighted sum한다. $$\lambda_k >= 0$$
 
-$$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a|x_t) \| \pi_S(a|x_t, w))$$
+$$l_{kick}^k=l_{RL}(w, x, t) + \lambda_kH(\pi_T(a | x_t) \| \pi_S(a | x_t, w))$$
 
 - policy distillation과는 달리 trajectory를 student policy에 따라 sampling 함
 - auxiliary loss는 다른 관점에서 보면 A3C의 entropy regularization과 같은 맥락으로 볼 수 있음
@@ -85,7 +85,7 @@ $$l_{A3C}(w, x, t)=log\pi_S(a_t | s_t, w)(r_t + \gamma v_{t+1} - V(x_t | \theta)
 
 - 이 때, A3C Kickstarting loss는 다음과 같음
 
-$$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a|x_t) \| \pi_S(a|x_t, w))$$
+$$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a | x_t) \| \pi_S(a | x_t, w))$$
 
 ### 4.3 Population based training
 - Kickstarting에서 중요한 것은 바로 loss에서 $$\lambda_k$$의 자동 스케줄링임
