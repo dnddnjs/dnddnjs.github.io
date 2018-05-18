@@ -96,3 +96,38 @@ $$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a \vert x_t) \Vert \pi_S(a \vert x_t, w))$
 	- 이 중에서 랜덤으로 골라서 학습
 	- 성능이 다른 놈보다 월등히 높은 놈이 있으먼 선택
 	- 선택한 놈의 hyper parameter로 바로 대체하기보다는 조금 이동함
+
+	
+## 5. Experiment
+- IMPALA 에이전트로 DMLab-30 task에서 테스트함
+- IMPALA 에이전트
+	- visual input에 대해서는 convolution + lstm
+	- language input에 대해서는 lstm
+	- 두 개의 output을 concat, 그 다음 fully connected로 actor, critic output
+	- small agent는 2개의 conv layer
+	- large agent는 15개의 conv layer
+- DMLab-30 task
+	- 딥마인드에서 만든 30개의 간단한 task 들
+
+<img src="https://www.dropbox.com/s/1tstdy9c0tivlgk/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-18%2010.16.04.png?raw=1">
+
+- 1 high-capacity learner worker
+- 150 actor worker
+- worker는 task당 5개로 distributed (어마어마한 실험 환경임)
+- 학습 평가는 사람이 했을 때의 점수와 비교함
+- 첫 번째 그림은 바닥부터 학습한 에이전트와 single teacher를 통해 학습한 student agent의 성능을 비교한 그래프임. 주황색 그래프가 teacher agent가 되었다고 생각했을 때 teacher의 final score에 도달하는 시간에 비해 student는 1/10의 속도로 도달함.
+- 두 번째 그래프는 kickstarting distillation weight의 evolution을 보여줌
+<img src="https://www.dropbox.com/s/7jn1jg0ibvx9nvi/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-18%2010.21.47.png?raw=1">
+
+- distillation weight의 scheduling의 효과는 다음 그래프에서 볼 수 있음. 생각보다 critical 한 것 같음. constant로 사용할 경우 supervised learning인 policy distillation과 거의 차이 없음. 
+
+<img src="https://www.dropbox.com/s/ozhs48i8so4cevm/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-18%2010.29.04.png?raw=1">
+
+## 6. Evaluation
+- 기존 knowledge transfer 방법이 거의 imitation learning에 가까웠다면 kickstarting은 reinforcement learning과 적절히 섞은 점이 장점
+- 기존 A3C나 IMPALA 같은 에이전트에 쉽게 implement 가능
+- 추가적으로 weight scheduling이 필요한데 이게 성능에 영향을 많이 주는 것을 봐서는 현재 방법이 아닌 다른 방법으로 추가적으로 성능 개선이 가능하지 않을까 싶음
+- teacher가 있는 상황이 많지 않을 것 같다는 생각이 듬(현실적일까..?)
+- multiple teacher를 두는 것은 자원이 충분하지 않은 상황에서 오히려 전반적인 프로세스의 크기를 키우는 게 아닐까 싶음. 
+- 바닥부터 스스로 학습하면서 자아를 분리해서 하나는 teacher로 하나는 student가 되는 방법은 어떨까 싶음
+- 
