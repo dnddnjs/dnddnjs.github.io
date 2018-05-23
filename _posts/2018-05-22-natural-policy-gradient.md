@@ -28,6 +28,12 @@ Approximation (2000)](hhttps://papers.nips.cc/paper/1713-policy-gradient-methods
 - gradient descent는 parameter를 한 번에 많이 update 할 수 없는 반면, natural gradient는 가장 좋은 action을 고르도록 학습이 됌 (sutton 논문에서와 같이 compatible value function을 사용할 경우 policy iteration에서 policy improvement 1 step의 과정에서)
 - simple MDP와 tetris MDP에서 테스트함. 성능이 많이 향상
 
+(개인생각) 뉴럴넷을 사용할 경우 gradient가 steepest direction이 아닌 경우가 많다. 이럴 경우 natural gradient가 steepest direction이 된다는 연구가 이뤄지고 있었다. 강화학습의 policy gradient은 objective function의 gradient를 따라 policy를 업데이트한다. 이 때, policy는 parameterized 되는데 이 경우에도 gradient 대신에 natural gradient가 좋다는 것을 실험해보는 논문인 것 같다. 
+
+2차미분을 이용한 다른 방법들과의 비교가 생각보다 없는 점이 아쉽다.(Hessian을 이용한다거나 conjugate gradient method를 이용한다거나). 또한 natural gradient 만으로 업데이트하면 policy의 improvement보장이 안될 수 있다. policy의 improvement를 보장하기 위해 line search도 써야하는데 line search를 어떻게 쓰는지에 대한 자세한 언급이 없다.
+
+natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다. 
+
 
 ## 2. Discussion
 ---
@@ -51,6 +57,8 @@ Approximation (2000)](hhttps://papers.nips.cc/paper/1713-policy-gradient-methods
 ## 4. A Natural Gradient
 ---
 ### 4.1 환경에 대한 설정
+이 논문에서 제시하는 학습 환경은 다음과 같다.
+
 - MDP: tuple $$(S, s_0, A, R, P)$$
 - $$S$$: a finite set of states
 - $$s_0$$: a start state
@@ -64,12 +72,64 @@ Approximation (2000)](hhttps://papers.nips.cc/paper/1713-policy-gradient-methods
 - 정책이 $$\theta$$로 parameterize되어있으므로 performance는 $$\eta(\pi_{\theta})$$인데 $$\eta(\theta)$$로 쓸거임
 
 ### 4.2 Natural Gradient
-- 서튼 pg 논문의 policy gradient theorem에 따라 exact gradient of the average reward는 다음과 같음
+#### 4.2.1 Policy gradient Theorem
+서튼 pg 논문의 policy gradient theorem에 따라 exact gradient of the average reward는 다음과 같다. 다음 수식이 어떻게 유도되었는지, 어떤 의미인지 모른다면 서튼 pg 논문을 통해 제대로 이해하는 것이 좋다.
 
 $$\nabla\eta(\theta)=\sum_{s,a}\rho^{\pi}(s)\nabla\pi(a;s,\theta)Q^{\pi}(s,a)$$
 
-- steepest descent direction of $$\eta(\theta)$$는 $$\eta(\theta + d\theta)$$를 최소화하는 $$d\theta$$로 정의
-- gradient descent에서는 $$\vert d\theta \vert^2$$가 일정 크기 이하인 것으로 제약조건을 줌(held to small constant)
-- 다음은 Natural Gradient Works Efficiently in Learning을 참조
-	- Euclidian space에서는 gradient가 steepest direction을 가리키지만 Riemannian space에서는 그렇지 않다.
-	-  
+steepest descent direction of $$\eta(\theta)$$는 $$\eta(\theta + d\theta)$$를 최소화하는 $$d\theta$$로 정의된다. 이 때, $$\vert d\theta \vert^2$$가 일정 크기 이하인 것으로 제약조건을 준다(held to small constant). Euclidian space에서는 $$\eta(\theta)$$가 steepest direction이지만 Riemannian space에서는 natural gradient가 steepest direction이다. 
+
+#### 4.2.2 Natural gradient 증명
+Riemannian space에서 거리는 다음과 같이 정의된다. $$G(\theta)$$는 특정한 양수로 이루어진 matrix이다.
+
+$$\vert d\theta \vert^2=\sum_{ij}(\theta)d\theta_id\theta_i=d\theta^TG(\theta)d\theta$$
+
+이 수식은 Natural Gradient Works Efficiently in Learning 논문에서 증명되어있다. 다음은 natural gradient 증명이다. 
+
+steepest direction을 구할 때 $$\theta$$의 크기를 제약조건을 준다. 제약조건은 다음과 같다. 
+
+$$\vert d\theta \vert^2 = \epsilon^2$$
+
+그리고 steepest vector인 $$d\theta$$는 다음과 같이 정의할 수 있다. 
+
+$$d\theta = \epsilon a$$
+
+$$\vert a \vert^2=a^TG(\theta)a = 1$$
+
+이 때, $$a$$가 steepest direction unit vector이 되려면 다음 수식을 최소로 만들어야 한다. (이 수식은 잘 모르겠지만 $$\theta$$에서의 1차근사를 가정하는게 아닌가 싶다.
+
+$$\eta(\theta + d\theta) = \eta(\theta) + \epsilon\nabla\eta(\theta)^Ta$$
+
+위 수식이 제약조건 아래 최소가 되는 $$a$$를 구하기 위해 Lagrangian method를 사용한다. Lagrangian method를 모른다면 [위키피디아](https://en.wikipedia.org/wiki/Lagrange_multiplier)를 참고하는 것을 추천한다. 위 수식이 최소라는 것은 $$\nabla\eta(\theta)^Ta$$가 최소라는 것이다. 
+
+$$\frac{\partial}{\partial a_i}(\nabla\eta(\theta)^Ta - \lambda a^TG(\theta)a)=0$$
+
+따라서 $$(\nabla\eta(\theta)^Ta - \lambda a^TG(\theta)a)=0$$는 상수이다. 상수를 미분하면 0이므로 이 식을 $$a$$로 미분한다. 그러면 다음과 같다. steepest direction을 구한 것이다.
+
+$$\nabla\eta(\theta) = 2 \lambda G(\theta)a$$
+
+$$a=\frac{1}{2\lambda}G^{-1}\nabla\eta(\theta)$$
+
+이 때, 다음 식을 natural gradient라고 정의한다.
+
+$$\tilde{\nabla}\eta(\theta) = G^{-1}\nabla\eta(\theta)$$
+
+natural gradient를 이용한 업데이트는 다음과 같다. 
+
+$$\theta_{t+1}=\theta_t - \alpha_tG^{-1}\nabla\eta(\theta)$$
+
+여기까지는 natural gradient의 증명이었다. 이 natural gradient를 policy gradient에 적용한 것이 natural policy gradient이다. natural policy gradient는 다음과 같이 정의된다.
+
+$$\tilde{\nabla}\eta(\theta) = F^{-1}\nabla\eta(\theta)$$
+
+$$G$$ 대신 $$F$$를 사용했는데 $$F$$는 Fisher information matix이다. 수식은 다음과 같다.
+
+$$F(\theta) = E_{\rho^\pi(s)}[F_s(\theta)]$$
+
+$$F_s(\theta)=E_{\pi(a;s,\theta)}[\frac{\partial log \pi(a;s, \theta)}{\partial \theta_i}\frac{\partial log \pi(a;s, \theta)}{\partial\theta_j}]$$
+
+왜 G가 F가 되는지는 다음 파트에서 살펴보자.
+
+## 5. The Natural Gradient and Policy Iteration
+---
+### 5.1 Theorem 1
