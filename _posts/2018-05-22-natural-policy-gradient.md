@@ -216,7 +216,13 @@ $$\delta\theta = \theta' - \theta = \alpha\bar{\nabla}\eta(\theta)=\alpha\bar{w}
 
 policy에 대해서 1차근사를 하면 다음과 같다. 
 
-$$\pi(a;s,\theta')=\pi(a;s,\theta)+\frac{\partial\pi(a;s,\theta)^T}{\partial\theta}\delta\theta + O(\delta\theta^2)\\=\pi(a;s,\theta)(1+\psi(s,a)^T\delta\theta) + O(\delta\theta^2)\\=\pi(a;s,\theta)(1+\alpha\psi(s,a)^T\bar{w}) + O(\delta\theta^2)\\=\pi(a;s,\theta)(1+\alpha f^{\pi}(s,a;\bar{w}) + O(\delta\theta^2)$$
+$$\pi(a;s,\theta')=\pi(a;s,\theta)+\frac{\partial\pi(a;s,\theta)^T}{\partial\theta}\delta\theta + O(\delta\theta^2)$$
+
+$$=\pi(a;s,\theta)(1+\psi(s,a)^T\delta\theta) + O(\delta\theta^2)$$
+
+$$=\pi(a;s,\theta)(1+\alpha\psi(s,a)^T\bar{w}) + O(\delta\theta^2)$$
+
+$$=\pi(a;s,\theta)(1+\alpha f^{\pi}(s,a;\bar{w}) + O(\delta\theta^2)$$
 
 policy 자체가 function approximator의 크기대로 업데이트가 되므로 local하게 best action의 probability는 커지고 다른 probability의 크기는 작아질 것이다. 하지만 만약 greedy improvement가 된다하더라도 그게 performance의 improvement를 보장하는 것은 아니다. 하지만 line search와 함께 사용할 경우 improvement를 보장할 수 있다. 
 
@@ -226,3 +232,7 @@ policy 자체가 function approximator의 크기대로 업데이트가 되므로
 $$f\leftarrow f+\nabla log \pi(a_t; s_t, \theta)\nabla log \pi(a_t; s_t, \theta)^T$$
 
 T length trajectory에 대해서 f/T를 통해 F의 estimate를 구한다.
+
+두 개의 실험 중에서 tetris만 살펴보려한다. tetrix는 linear function approximator와 greedy policy iteration을 사용할 경우 performance가 갑자기 떨어지는 현상이 있다. 밑의 그림에서 A의 spike가 있는 그래프가 이 경우이다. 그 밑에 낮게 누워있는 그래프는 일반적인 policy gradient 방법이다. 하지만 Natural policy gradient를 사용할 경우 B 그림에서 오른쪽 그래프와 같이 성능개선이 뚜렷하다. Policy Iteration 처럼 성능이 뚝 떨어지지 않고 안정적으로 유지한다. 또한 그림 C에서 보는 것처럼 오른쪽 그래프인 일반적인 gradient 방법보다 훨씬 빠르게 학습하는 것을 볼 수 있다.
+
+<img src="https://www.dropbox.com/s/644zpk53bqn31o1/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-23%2015.26.46.png?raw=1">
