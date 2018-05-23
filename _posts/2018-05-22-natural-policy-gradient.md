@@ -32,7 +32,7 @@ Approximation (2000)](hhttps://papers.nips.cc/paper/1713-policy-gradient-methods
 
 2차미분을 이용한 다른 방법들과의 비교가 생각보다 없는 점이 아쉽다.(Hessian을 이용한다거나 conjugate gradient method를 이용한다거나). 또한 natural gradient 만으로 업데이트하면 policy의 improvement보장이 안될 수 있다. policy의 improvement를 보장하기 위해 line search도 써야하는데 line search를 어떻게 쓰는지에 대한 자세한 언급이 없다.
 
-natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다. 
+natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다(인용된 논문들을 잘 안봐서 그럴지도 모른다). 
 
 
 ## 2. Discussion
@@ -203,6 +203,26 @@ $$\pi(a;s,\theta + \alpha\bar{\nabla}\eta(\theta)) \propto exp(\theta^T\phi_{sa}
 
 $$\bar{\nabla}\eta(\theta)\not=0$$이고 $$\alpha\rightarrow\infty$$이면 exp안의 항 중에서 뒤의 항이 dominate하게 된다. 여러 행동 중에 $$\bar{\nabla}\eta(\theta)^T\phi_{sa}$$가 가장 큰 행동이 있다면 이 행동의 policy probability가 1이 되고 나머지는 0이 된다. 따라서 다음이 성립한다.
 
-$$\pi_{\infty}=0 \; if \;and \; only \; if\; a $$
+$$\pi_{\infty}=0 \;\;\; if \;and \; only \; if\; a \not\in argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
 
+이 결과로부터 natural policy gradient는 단지 더 좋은 action이 아니라 best action을 고르도록 학습이 된다. 하지만 non-covariant gradient(1차미분) 에서는 그저 더 좋은 action을 고르도록 학습이 된다. 하지만 이 natural policy gradient에 대한 결과는 infinite learning rate 세팅에서만 성립함. 좀 더 일반적인 경우에 대해서 살펴보자.
 
+#### 5.3 Theorem 3 
+Theorem 2에서와는 달리 일반적인 policy를 가정하자(general parameterized policy). Theorem 3는 이 상황에서 natural gradient를 통한 업데이트가 best action를 고르는 방향으로 학습이 된다는 것을 보여준다. 
+
+natural gradien에 따른 policy parameter의 업데이트는 다음과 같다. $$\bar(w)$$는 approximation error를 minimize하는 $$w$$이다.
+
+$$\delta\theta = \theta' - \theta = \alpha\bar{\nabla}\eta(\theta)=\alpha\bar{w}$$
+
+policy에 대해서 1차근사를 하면 다음과 같다. 
+
+$$\pi(a;s,\theta')=\pi(a;s,\theta)+\frac{\partial\pi(a;s,\theta)^T}{\partial\theta}\delta\theta + O(\delta\theta^2)\\=\pi(a;s,\theta)(1+\psi(s,a)^T\delta\theta) + O(\delta\theta^2)\\=\pi(a;s,\theta)(1+\alpha\psi(s,a)^T\bar{w}) + O(\delta\theta^2)\\=\pi(a;s,\theta)(1+\alpha f^{\pi}(s,a;\bar{w}) + O(\delta\theta^2)$$
+
+policy 자체가 function approximator의 크기대로 업데이트가 되므로 local하게 best action의 probability는 커지고 다른 probability의 크기는 작아질 것이다. 하지만 만약 greedy improvement가 된다하더라도 그게 performance의 improvement를 보장하는 것은 아니다. 하지만 line search와 함께 사용할 경우 improvement를 보장할 수 있다. 
+
+## 6. Experiment
+논문에서는 natural gradient를 simple MDP와 tetris MDP에 대해서 테스트했다. practice에서는 Fisher information matrix는 다음과 같은 식으로 업데이트한다.
+
+$$f\leftarrow f+\nabla log \pi(a_t; s_t, \theta)\nabla log \pi(a_t; s_t, \theta)^T$$
+
+T length trajectory에 대해서 f/T를 통해 F의 estimate를 구한다.
