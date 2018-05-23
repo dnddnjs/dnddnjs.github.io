@@ -201,9 +201,10 @@ $$argmax_{a'}f^{\pi}(s,a)=argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
 
 $$\pi(a;s,\theta + \alpha\bar{\nabla}\eta(\theta)) \propto exp(\theta^T\phi_{sa} + \alpha\bar{\nabla}\eta(\theta)^T\phi_{sa})$$
 
-$$\bar{\nabla}\eta(\theta)\not= 0$$이고 $$\alpha\rightarrow\infty$$이면 exp안의 항 중에서 뒤의 항이 dominate하게 된다. 여러 행동 중에 $$\bar{\nabla}\eta(\theta)^T\phi_{sa}$$가 가장 큰 행동이 있다면 이 행동의 policy probability가 1이 되고 나머지는 0이 된다. 따라서 다음이 성립한다.
+$$\bar{\nabla}\eta(\theta)\not =0$$이고 $$\alpha\rightarrow\infty$$이면 exp안의 항 중에서 뒤의 항이 dominate하게 된다. 여러 행동 중에 $$\bar{\nabla}\eta(\theta)^T\phi_{sa}$$가 가장 큰 행동이 있다면 이 행동의 policy probability가 1이 되고 나머지는 0이 된다. 따라서 다음이 성립한다.
 
-$$\pi_{\infty}=0$$ if and only if $$a \not\in argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
+$$\pi_{\infty}=0$$ if and only if 
+$$a \not\in argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
 
 이 결과로부터 natural policy gradient는 단지 더 좋은 action이 아니라 best action을 고르도록 학습이 된다. 하지만 non-covariant gradient(1차미분) 에서는 그저 더 좋은 action을 고르도록 학습이 된다. 하지만 이 natural policy gradient에 대한 결과는 infinite learning rate 세팅에서만 성립함. 좀 더 일반적인 경우에 대해서 살펴보자.
 
