@@ -168,7 +168,7 @@ policy를 다음과 같이 정의한다.
 
 $$\pi(a;s,\theta) \propto exp(\theta^T\phi_{sa})$$
 
-$$\bar{\nabla\eta(\theta)}$$가 0이 아니고 $$\bar{w}$$는 approximation error를 최소화한 $$w$$라고 가정한다. 이 상태에서 natural gradient update를 생각해보자. policy gradient는 gradient ascent임을 기억하자.
+$$\bar{\nabla}\eta(\theta)$$가 0이 아니고 $$\bar{w}$$는 approximation error를 최소화한 $$w$$라고 가정한다. 이 상태에서 natural gradient update를 생각해보자. policy gradient는 gradient ascent임을 기억하자.
 
 $$\theta_{t+1}=\theta_t + \alpha_t\bar{\nabla}\eta(\theta)$$
 
@@ -178,27 +178,31 @@ $$\pi_{\infty}(a;s)=lim_{\alpha\rightarrow\infty}\pi(a;s,\theta+\alpha\bar{\nabl
 
 function approximator는 다음과 같다. 
 
-$$f^{\pi}(s,a;w)=w^T\psi^{\pi}(s,a)$$
+$f^{\pi}(s,a;w)=w^T\psi^{\pi}(s,a)$
 
 Theorem 1에 의해 위 식은 아래와 같이 쓸 수 있다.
 
 
-$$f^{\pi}(s,a;w)=\bar{\nabla}\eta(\theta)^T\psi^{\pi}(s,a)$$
+$f^{\pi}(s,a;w)=\bar{\nabla}\eta(\theta)^T\psi^{\pi}(s,a)$
 
-$$\theta$$의 정의에 의해 $$\psi$$는 다음과 같다.
+$\theta$의 정의에 의해 $\psi$는 다음과 같다.
 
-$$\psi^{\pi}(s,a)=\phi_{sa}-E_{\pi(a';s,\theta)}[\phi_{sa'}]$$
+$\psi^{\pi}(s,a)=\phi_{sa}-E_{\pi(a';s,\theta)}[\phi_{sa'}]$
 
 function approximator는 다음과 같이 다시 쓸 수 있다.
 
-$$f^{\pi}(s,a;w)=\bar{\nabla}\eta(\theta)^T(\phi_{sa}-E_{\pi(a';s,\theta)}[\phi_{sa'}])$$
+$f^{\pi}(s,a;w)=\bar{\nabla}\eta(\theta)^T(\phi_{sa}-E_{\pi(a';s,\theta)}[\phi_{sa'}])$
 
 greedy policy improvement가 Q function 값 중 가장 큰 값을 가지는 action을 선택하듯이 여기서도 function approximator의 값이 가장 큰 action을 선택하는 상황을 가정해본다. 이 때 function approximator의 argmax는 다음과 같이 쓸 수 있다.
 
-$$argmax_{a'}f^{\pi}(s,a)=argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
+$argmax_{a'}f^{\pi}(s,a)=argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$
 
 (1) 식을 다시 살펴보자. policy의 정의에 따라 다음과 같이 쓸 수 있다. 
 
-$$\pi(a;s,\theta + \alpha\bar{\nabla}\eta(\theta)) \propto exp(\theta^T\phi_{sa} + \alpha\bar{\nabla}\eta(\theta)^T\phi_(sa))$$
+$$\pi(a;s,\theta + \alpha\bar{\nabla}\eta(\theta)) \propto exp(\theta^T\phi_{sa} + \alpha\bar{\nabla}\eta(\theta)^T\phi_{sa})$$
+
+$$\bar{\nabla}\eta(\theta)\not=0$$이고 $$\alpha\rightarrow\infty$$이면 exp안의 항 중에서 뒤의 항이 dominate하게 된다. 여러 행동 중에 $$\bar{\nabla}\eta(\theta)^T\phi_{sa}$$가 가장 큰 행동이 있다면 이 행동의 policy probability가 1이 되고 나머지는 0이 된다. 따라서 다음이 성립한다.
+
+$$\pi_{\infty}(a,s)=0 in and only if$$
 
 
