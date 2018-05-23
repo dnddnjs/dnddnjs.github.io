@@ -159,5 +159,46 @@ $$F(\theta)\bar{w}=\nabla\eta(\theta)$$
 
 $$\bar{w}=F(\theta)^{-1}\nabla\eta(\theta)$$
 
-이 식은 natural gradient 식과 동일하다. 이 식은 policy가 update 될 때, value function approximator의 parameter 방향으로 이동한다는 것을 의미한다.
+이 식은 natural gradient 식과 동일하다. 이 식은 policy가 update 될 때, value function approximator의 parameter 방향으로 이동한다는 것을 의미한다. function approximation이 정확하다면 그 parameter의 natural policy gradient와 inner product가 커야한다. 
+
+### 5.2 Theorem 2: Greedy Polict Improvement
+natural policy gradient가 단순히 더 좋은 행동을 고르도록 학습하는게 아니라 가장 좋은 (greedy) 행동을 고르도록 학습한다는 것을 증명하는 파트이다. 이것을 일반적인 형태의 policy에 대해서 증명하기 전에 exponential 형태의 policy에 대해서 증명하는 것이 Theorem 2이다.
+
+policy를 다음과 같이 정의한다.
+
+$$\pi(a;s,\theta) \propto exp(\theta^T\phi_{sa})$$
+
+$$\bar{\nabla\eta(\theta)}$$가 0이 아니고 $$\bar{w}$$는 approximation error를 최소화한 $$w$$라고 가정한다. 이 상태에서 natural gradient update를 생각해보자. policy gradient는 gradient ascent임을 기억하자.
+
+$$\theta_{t+1}=\theta_t + \alpha_t\bar{\nabla}\eta(\theta)$$
+
+이 때 $$\alpha$$가 learning rate로 parameter를 얼마나 업데이트하는지를 결정한다. 이 값을 무한대로 늘렸을 때 policy가 어떻게 업데이트되는지 생각해보자. 
+
+$$\pi_{\infty}(a;s)=lim_{\alpha\rightarrow\infty}\pi(a;s,\theta+\alpha\bar{\nabla}\eta(\theta))-(1)$$
+
+function approximator는 다음과 같다. 
+
+$$f^{\pi}(s,a;w)=w^T\psi^{\pi}(s,a)$$
+
+Theorem 1에 의해 위 식은 아래와 같이 쓸 수 있다.
+
+
+$$f^{\pi}(s,a;w)=\bar{\nabla}\eta(\theta)^T\psi^{\pi}(s,a)$$
+
+$$\theta$$의 정의에 의해 $$\psi$$는 다음과 같다.
+
+$$\psi^{\pi}(s,a)=\phi_{sa}-E_{\pi(a';s,\theta)}[\phi_{sa'}]$$
+
+function approximator는 다음과 같이 다시 쓸 수 있다.
+
+$$f^{\pi}(s,a;w)=\bar{\nabla}\eta(\theta)^T(\phi_{sa}-E_{\pi(a';s,\theta)}[\phi_{sa'}])$$
+
+greedy policy improvement가 Q function 값 중 가장 큰 값을 가지는 action을 선택하듯이 여기서도 function approximator의 값이 가장 큰 action을 선택하는 상황을 가정해본다. 이 때 function approximator의 argmax는 다음과 같이 쓸 수 있다.
+
+$$argmax_{a'}f^{\pi}(s,a)=argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
+
+(1) 식을 다시 살펴보자. policy의 정의에 따라 다음과 같이 쓸 수 있다. 
+
+$$\pi(a;s,\theta + \alpha\bar{\nabla}\eta(\theta)) \propto exp(\theta^T\phi_{sa} + \alpha\bar{\nabla}\eta(\theta)^T\phi_(sa))$$
+
 
