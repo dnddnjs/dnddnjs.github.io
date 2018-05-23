@@ -112,7 +112,7 @@ $$a=\frac{1}{2\lambda}G^{-1}\nabla\eta(\theta)$$
 
 이 때, 다음 식을 natural gradient라고 정의한다.
 
-$$\tilde{\nabla}\eta(\theta) = G^{-1}\nabla\eta(\theta)$$
+$$\bar{\nabla}\eta(\theta) = G^{-1}\nabla\eta(\theta)$$
 
 natural gradient를 이용한 업데이트는 다음과 같다. 
 
@@ -120,7 +120,7 @@ $$\theta_{t+1}=\theta_t - \alpha_tG^{-1}\nabla\eta(\theta)$$
 
 여기까지는 natural gradient의 증명이었다. 이 natural gradient를 policy gradient에 적용한 것이 natural policy gradient이다. natural policy gradient는 다음과 같이 정의된다.
 
-$$\tilde{\nabla}\eta(\theta) = F^{-1}\nabla\eta(\theta)$$
+$$\bar{\nabla}\eta(\theta) = F^{-1}\nabla\eta(\theta)$$
 
 $$G$$ 대신 $$F$$를 사용했는데 $$F$$는 Fisher information matix이다. 수식은 다음과 같다.
 
@@ -128,8 +128,36 @@ $$F(\theta) = E_{\rho^\pi(s)}[F_s(\theta)]$$
 
 $$F_s(\theta)=E_{\pi(a;s,\theta)}[\frac{\partial log \pi(a;s, \theta)}{\partial \theta_i}\frac{\partial log \pi(a;s, \theta)}{\partial\theta_j}]$$
 
-왜 G가 F가 되는지는 다음 파트에서 살펴보자.
+왜 G가 F가 되는지는 아직 잘 모르겠다.
 
 ## 5. The Natural Gradient and Policy Iteration
 ---
 ### 5.1 Theorem 1
+sutton pg 논문에 따라 $$Q^{\pi}(s,a)$$를 approximation한다. approximate하는 함수 $$f^{\pi}(s,a;w)$$는 다음과 같다.(compatible value function)
+
+$$f^{\pi}(s,a;w)=w^T\psi^{\pi}(s,a)$$
+
+$$\psi^{\pi}(s,a) = \nabla log\pi(a;s,\theta)$$
+
+$$w$$는 원래 approximate하는 함수 $$Q$$와 $$f$$의 차이를 줄이도록 학습한다(mean square error). 수렴한 local minima의 $$w$$를 $$\bar{w}$$라고 하겠다. 에러는 다음과 같은 수식으로 나타낸다. 
+
+$$\epsilon(w,\pi)\equiv\sum_{s, a}\rho^{\pi}(s)\pi(a;s,\theta)(f^{\pi}(s,a;w)-Q^{\pi}(s,a))^2$$
+
+위 식이 local minima이면 미분값이 0이다. $$w$$에 대해서 미분하면 다음과 같다. 
+
+$$\sum_{s, a}\rho^{\pi}(s)\pi(a;s,\theta)\psi^{\pi}(s,a)(\psi^{\pi}(s,a)^T\bar{w}-Q^{\pi}(s,a))=0$$
+
+$$(\sum_{s, a}\rho^{\pi}(s)\pi(a;s,\theta)\psi^{\pi}(s,a)\psi^{\pi}(s,a)^T)\bar{w}=\sum_{s, a}\rho^{\pi}(s)\pi(a;s,\theta)\psi^{\pi}(s,a)Q^{\pi}(s,a))$$
+
+이 때, 위 식의 우변은 $$\psi$$의 정의에 의해 policy gradient가 된다. 또한 왼쪽 항에서는 Fisher information matrix가 나온다.
+
+$$F(\theta)=\sum_{s,a}\pi(a;s,\theta)\psi^{\pi}(s,a)\psi^{\pi}(s,a)=E_{\rho^\pi(s)}[F_s(\theta)]$$
+
+따라서 다음과 같다.
+
+$$F(\theta)\bar{w}=\nabla\eta(\theta)$$
+
+$$\bar{w}=F(\theta)^{-1}\nabla\eta(\theta)$$
+
+이 식은 natural gradient 식과 동일하다. 이 식은 policy가 update 될 때, value function approximator의 parameter 방향으로 이동한다는 것을 의미한다.
+
