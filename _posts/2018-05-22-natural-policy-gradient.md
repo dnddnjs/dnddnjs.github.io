@@ -32,7 +32,11 @@ Approximation (2000)](hhttps://papers.nips.cc/paper/1713-policy-gradient-methods
 
 2차미분을 이용한 다른 방법들과의 비교가 생각보다 없는 점이 아쉽다.(Hessian을 이용한다거나 conjugate gradient method를 이용한다거나). 또한 natural gradient 만으로 업데이트하면 policy의 improvement보장이 안될 수 있다. policy의 improvement를 보장하기 위해 line search도 써야하는데 line search를 어떻게 쓰는지에 대한 자세한 언급이 없다.
 
-natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다(인용된 논문들을 잘 안봐서 그럴지도 모른다). 
+natural policy gradient 논문은 natural gradient + policy gradient를 처음 적용했다는데 의의가 있다. 하지만 이 논문이 문제 삼은 gradient는 non-covariant하다(이게 어떤 문제가 있는지 모르겠다)라는 문제를 natural gradient를 통해 해결하지 못했다(논문에서 이 부분이 명확히 표현된건지 모르겠다). NPG의 뒤를 잇는 논문이 "covariant policy search"와 "natural actor-critic"에서 covariant하지 못하다는 것을 문제 삼는다. 
+
+또한 논문은 pg의 두 가지 세팅 중에 average-reward setting(infinite horizon)에서만 NPG를 다룬다. "covariant policy search" 논문에서는 average-reward setting과 start-state setting 모두에 대해서 npg를 적용한다. 
+
+natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다(인용된 논문들을 잘 안봐서 그럴지도 모른다).
 
 
 ## 2. Discussion
@@ -41,7 +45,7 @@ natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 np
 - natural gradient method는 policy iteration에서와 같이 greedy action을 선택하도록 학습됌
 - line search와 함께 쓰면 natural gradient method는 더 policy iteration 같아짐
 - greedy policy iteration에서와는 달리 performance improvement가 보장됌
-- 하지만 F(Fisher information matrix)가 asymtotically Hessian으로 수렴하지 않음. asymtotically conjugate gradient method(Hessian을 approx.로 구하는 방법)가 더 좋아 보일 수 있음
+- 하지만 F(Fisher information matrix)가 asymtotically Hessian으로 수렴하지 않음. asymtotically conjugate gradient method(Hessian의 inverse를 approx.로 구하는 방법)가 더 좋아 보일 수 있음
 - 하지만 Hessian이 항상 informative하지 않고 tetris에서 봤듯이 natural gradient method가 더 효율적일 수 있음(pushing the policy toward choosing greedy optimal actions)
 - conjugate gradient method가 좀 더 maximum에 빠르게 수렴하지만, performance는 maximum에서 거의 안변하므로 좋다고 말하기 어려움(?). 이 부분에 대해서 추가적인 연구 필요.
 
@@ -128,7 +132,7 @@ $$F(\theta) = E_{\rho^\pi(s)}[F_s(\theta)]$$
 
 $$F_s(\theta)=E_{\pi(a;s,\theta)}[\frac{\partial log \pi(a;s, \theta)}{\partial \theta_i}\frac{\partial log \pi(a;s, \theta)}{\partial\theta_j}]$$
 
-왜 G가 F가 되는지는 아직 잘 모르겠다.
+왜 G가 F가 되는지는 아직 잘 모르겠다. 거리라는 개념을 표현하려면 
 
 ## 5. The Natural Gradient and Policy Iteration
 ---
