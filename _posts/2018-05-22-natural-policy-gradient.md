@@ -282,13 +282,15 @@ $$
 \pi(u;x,\theta) \propto exp(\theta_1 s_1 x^2 + \theta_2 s_2 x)
 $$
 
-이 policy를 간단히 numpy와 matplotlib를 이용해서 그려봤다. $$\theta_1$$과 $$theta_2$$를 (0.5, 0.5), (1, 0), (0, 1)로 하고 $$s_1$$과 $$s_2$$는 1로 두었다. x는 -1에서 1까지의 범위로 그렸다. 
-<center><img src='https://www.dropbox.com/s/v69qyrwn7zurk8c/Screenshot%202018-06-08%2014.57.07.png?dl=1' width='500px'>
+이 policy를 간단히 numpy와 matplotlib를 이용해서 그려봤다. $$\theta_1$$과 $$theta_2$$를 (0.5, 0.5), (1, 0), (0, 1)로 하고 $$s_1$$과 $$s_2$$는 1로 두었다. x는 -1에서 1까지의 범위로 그렸다. x를 0으로 유지하려면 u(t)가 -와 +가 둘 다 가능해야할 것 같은데 위 식으로만 봐서는 action이 하나이고 그 action일 확률을 표시하는 것처럼 나왔다. 아마 -1과 +1이 u(t)가 될 수 있는데 그 중 +1을 선택할 확률이 위와 같이 되는게 아닌가 싶다.
+<center><img src='https://www.dropbox.com/s/v69qyrwn7zurk8c/Screenshot%202018-06-08%2014.57.07.png?dl=1' width='500px'></center>
+
+다음 그림은 1-d LQR을 학습한 그래프이다. cost가 $$x^2$$이기 때문에 cost가 0으로 갈수록 agent는 0에서 안정적으로 머무른다고 볼 수 있다. 6개의 선 중에서 오른쪽 세 개가 일반적인 gradient 방법을 사용해서 학습한 결과이다. 그리고 왼쪽의 세 개의 선이 natural policy gradient를 통해 학습한 학습 곡선이다. 일반 gradient 방법보다 natural gradient가 훨씬 빠르게 학습한다(time 축이 log scale인 것을 감안하자).
+
+하지만 문제가 있다. npg를 학습한 세 개의 곡선은 $$\theta$$를 rescale 한 것이다. $$\theta$$앞에 곱해지는 숫자에 따라 학습의 과정이 다르다. 이 것은 coordinate에 따라 steepest gradient가 다르게 측정된다는 것이다. 즉, co-variant gradient가 아니라는 뜻이다. 이 논문에서는 natural gradient를 통해 gradient가 covariant하도록 만들고 싶었는데 실패한 것이다. 하지만 여전히 의의가 있는 것은 기존 gradient 방법들보다 훨씬 빠르게 학습한다는 것이다.
 
 
-
-
-<center><img src="https://www.dropbox.com/s/jb6cyzn7613x4bs/Screenshot%202018-06-08%2014.43.13.png?dl=1" width="300px">
+<center><img src="https://www.dropbox.com/s/jb6cyzn7613x4bs/Screenshot%202018-06-08%2014.43.13.png?dl=1" width="300px"></center>
 
 ### 7.2 Tetris
 두 개의 실험 중에서 tetris만 살펴보려한다. tetrix는 linear function approximator와 greedy policy iteration을 사용할 경우 performance가 갑자기 떨어지는 현상이 있다. 밑의 그림에서 A의 spike가 있는 그래프가 이 경우이다. 그 밑에 낮게 누워있는 그래프는 일반적인 policy gradient 방법이다. 하지만 Natural policy gradient를 사용할 경우 B 그림에서 오른쪽 그래프와 같이 성능개선이 뚜렷하다. Policy Iteration 처럼 성능이 뚝 떨어지지 않고 안정적으로 유지한다. 또한 그림 C에서 보는 것처럼 오른쪽 그래프인 일반적인 gradient 방법보다 훨씬 빠르게 학습하는 것을 볼 수 있다.
