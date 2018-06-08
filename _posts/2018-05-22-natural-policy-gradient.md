@@ -39,17 +39,7 @@ natural policy gradient 논문은 natural gradient + policy gradient를 처음 �
 natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다(인용된 논문들을 잘 안봐서 그럴지도 모른다).
 
 
-## 2. Discussion
----
-
-- natural gradient method는 policy iteration에서와 같이 greedy action을 선택하도록 학습됌
-- line search와 함께 쓰면 natural gradient method는 더 policy iteration 같아짐
-- greedy policy iteration에서와는 달리 performance improvement가 보장됌
-- 하지만 F(Fisher information matrix)가 asymtotically Hessian으로 수렴하지 않음. asymtotically conjugate gradient method(Hessian의 inverse를 approx.로 구하는 방법)가 더 좋아 보일 수 있음
-- 하지만 Hessian이 항상 informative하지 않고 tetris에서 봤듯이 natural gradient method가 더 효율적일 수 있음(pushing the policy toward choosing greedy optimal actions)
-- conjugate gradient method가 좀 더 maximum에 빠르게 수렴하지만, performance는 maximum에서 거의 안변하므로 좋다고 말하기 어려움(?). 이 부분에 대해서 추가적인 연구 필요.
-
-## 3. Introduction
+## 2. Introduction
 ---
 
 - direct policy gradient method는 future reward의 gradient를 따라 policy를 update함
@@ -58,9 +48,9 @@ natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 np
 - natural gradient와 policy iteration의 연관성을 설명하겠음: natural policy gradient is moving toward choosing a greedy optimal action (이런 연결점을 보이는 것이 왜 중요한 것일까?)
 
 
-## 4. A Natural Gradient
+## 3. A Natural Gradient
 ---
-### 4.1 환경에 대한 설정
+### 3.1 환경에 대한 설정
 이 논문에서 제시하는 학습 환경은 다음과 같다.
 
 - MDP: tuple $$(S, s_0, A, R, P)$$
@@ -75,15 +65,15 @@ natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 np
 - state-action value: $$Q^{\pi}(s,a)=E_{\pi}[\sum_{t=0}^{\infty}R(s_t, a_t)-\eta(\pi)\vert s_0=s, a_0=a]$$
 - 정책이 $$\theta$$로 parameterize되어있으므로 performance는 $$\eta(\pi_{\theta})$$인데 $$\eta(\theta)$$로 쓸거임
 
-### 4.2 Natural Gradient
-#### 4.2.1 Policy gradient Theorem
+### 3.2 Natural Gradient
+#### 3.2.1 Policy gradient Theorem
 서튼 pg 논문의 policy gradient theorem에 따라 exact gradient of the average reward는 다음과 같다. 다음 수식이 어떻게 유도되었는지, 어떤 의미인지 모른다면 서튼 pg 논문을 통해 제대로 이해하는 것이 좋다.
 
 $$\nabla\eta(\theta)=\sum_{s,a}\rho^{\pi}(s)\nabla\pi(a;s,\theta)Q^{\pi}(s,a)$$
 
 steepest descent direction of $$\eta(\theta)$$는 $$\eta(\theta + d\theta)$$를 최소화하는 $$d\theta$$로 정의된다. 이 때, $$\vert d\theta \vert^2$$가 일정 크기 이하인 것으로 제약조건을 준다(held to small constant). Euclidian space에서는 $$\eta(\theta)$$가 steepest direction이지만 Riemannian space에서는 natural gradient가 steepest direction이다. 
 
-#### 4.2.2 Natural gradient 증명
+#### 3.2.2 Natural gradient 증명
 Riemannian space에서 거리는 다음과 같이 정의된다. $$G(\theta)$$는 특정한 양수로 이루어진 matrix이다.
 
 $$\vert d\theta \vert^2=\sum_{ij}(\theta)d\theta_id\theta_i=d\theta^TG(\theta)d\theta$$
@@ -134,9 +124,9 @@ $$F_s(\theta)=E_{\pi(a;s,\theta)}[\frac{\partial log \pi(a;s, \theta)}{\partial 
 
 왜 G가 F가 되는지는 아직 잘 모르겠다. 거리라는 개념을 표현하려면 
 
-## 5. The Natural Gradient and Policy Iteration
+## 4. The Natural Gradient and Policy Iteration
 ---
-### 5.1 Theorem 1
+### 4.1 Theorem 1
 sutton pg 논문에 따라 $$Q^{\pi}(s,a)$$를 approximation한다. approximate하는 함수 $$f^{\pi}(s,a;w)$$는 다음과 같다.(compatible value function)
 
 $$f^{\pi}(s,a;w)=w^T\psi^{\pi}(s,a)$$
@@ -165,7 +155,7 @@ $$\bar{w}=F(\theta)^{-1}\nabla\eta(\theta)$$
 
 이 식은 natural gradient 식과 동일하다. 이 식은 policy가 update 될 때, value function approximator의 parameter 방향으로 이동한다는 것을 의미한다. function approximation이 정확하다면 그 parameter의 natural policy gradient와 inner product가 커야한다. 
 
-### 5.2 Theorem 2: Greedy Polict Improvement
+### 4.2 Theorem 2: Greedy Polict Improvement
 natural policy gradient가 단순히 더 좋은 행동을 고르도록 학습하는게 아니라 가장 좋은 (greedy) 행동을 고르도록 학습한다는 것을 증명하는 파트이다. 이것을 일반적인 형태의 policy에 대해서 증명하기 전에 exponential 형태의 policy에 대해서 증명하는 것이 Theorem 2이다.
 
 policy를 다음과 같이 정의한다.
@@ -215,7 +205,7 @@ $$a \notin argmax_{a'}\bar{\nabla}\eta(\theta)^T\phi_{sa'}$$
 
 이 결과로부터 natural policy gradient는 단지 더 좋은 action이 아니라 best action을 고르도록 학습이 된다. 하지만 non-covariant gradient(1차미분) 에서는 그저 더 좋은 action을 고르도록 학습이 된다. 하지만 이 natural policy gradient에 대한 결과는 infinite learning rate 세팅에서만 성립함. 좀 더 일반적인 경우에 대해서 살펴보자.
 
-#### 5.3 Theorem 3 
+#### 4.3 Theorem 3 
 Theorem 2에서와는 달리 일반적인 policy를 가정하자(general parameterized policy). Theorem 3는 이 상황에서 natural gradient를 통한 업데이트가 best action를 고르는 방향으로 학습이 된다는 것을 보여준다. 
 
 natural gradien에 따른 policy parameter의 업데이트는 다음과 같다. $$\bar{w}$$는 approximation error를 minimize하는 $$w$$이다.
@@ -234,7 +224,7 @@ $$=\pi(a;s,\theta)(1+\alpha f^{\pi}(s,a;\bar{w}) + O(\delta\theta^2)$$
 
 policy 자체가 function approximator의 크기대로 업데이트가 되므로 local하게 best action의 probability는 커지고 다른 probability의 크기는 작아질 것이다. 하지만 만약 greedy improvement가 된다하더라도 그게 performance의 improvement를 보장하는 것은 아니다. 하지만 line search와 함께 사용할 경우 improvement를 보장할 수 있다. 
 
-## 6. Metrics and Curvatures
+## 5. Metrics and Curvatures
 ---
 다음 식에 해당하는 G는 Fisher Information Matrix만 사용할 수 있는 것이 아니다.
 
@@ -256,7 +246,7 @@ $$
 이 파트에서는 무엇을 말하고 있는지 알기가 어렵다. FIM과 Hessian이 관련이 있다는 것을 알겠다. 하지만 asymtotically efficient와 같은 내용을 모르므로 내용의 이해가 어려웠다.
 
 
-## 7. Experiment
+## 6. Experiment
 ---
 논문에서는 natural gradient를 simple MDP와 tetris MDP에 대해서 테스트했다. practice에서는 Fisher information matrix는 다음과 같은 식으로 업데이트한다.
 
@@ -264,7 +254,7 @@ $$f\leftarrow f+\nabla log \pi(a_t; s_t, \theta)\nabla log \pi(a_t; s_t, \theta)
 
 T length trajectory에 대해서 f/T를 통해 F의 estimate를 구한다.
 
-### 7.1 Linear Quadratic regulator
+### 6.1 Linear Quadratic regulator
 에이전트를 테스트할 환경은 다음과 같은 dynamics를 가지고 있다. $$u(t)$$는 control signal로서 에이전트의 행동이라고 생각하면 된다. $$\epsilon$$은 noise distribution으로 환경에 가해지는 노이즈이다. 에이전트의 목표는 적절한 $$u(t)$$를 통해 
 x(t)를 0으로 유지하는 것이다. 제어분야에서의 LQR controller 문제이다.
 
@@ -287,12 +277,58 @@ $$
 
 다음 그림은 1-d LQR을 학습한 그래프이다. cost가 $$x^2$$이기 때문에 cost가 0으로 갈수록 agent는 0에서 안정적으로 머무른다고 볼 수 있다. 6개의 선 중에서 오른쪽 세 개가 일반적인 gradient 방법을 사용해서 학습한 결과이다. 그리고 왼쪽의 세 개의 선이 natural policy gradient를 통해 학습한 학습 곡선이다. 일반 gradient 방법보다 natural gradient가 훨씬 빠르게 학습한다(time 축이 log scale인 것을 감안하자).
 
-하지만 문제가 있다. npg를 학습한 세 개의 곡선은 $$\theta$$를 rescale 한 것이다. $$\theta$$앞에 곱해지는 숫자에 따라 학습의 과정이 다르다. 이 것은 coordinate에 따라 steepest gradient가 다르게 측정된다는 것이다. 즉, co-variant gradient가 아니라는 뜻이다. 이 논문에서는 natural gradient를 통해 gradient가 covariant하도록 만들고 싶었는데 실패한 것이다. 하지만 여전히 의의가 있는 것은 기존 gradient 방법들보다 훨씬 빠르게 학습한다는 것이다.
+하지만 문제가 있다. npg를 학습한 세 개의 곡선은 $$\theta$$를 rescale 한 것이다. $$\theta$$앞에 곱해지는 숫자에 따라 학습의 과정이 다르다. 이 것은 coordinate에 따라 steepest gradient가 다르게 측정된다는 것이다. 즉, covariant gradient가 아니라는 뜻이다. 이 논문에서는 natural gradient를 통해 gradient가 covariant하도록 만들고 싶었는데 실패한 것이다. 
 
 
-<center><img src="https://www.dropbox.com/s/jb6cyzn7613x4bs/Screenshot%202018-06-08%2014.43.13.png?dl=1" width="300px"></center>
+<center><img src="https://www.dropbox.com/s/fhn8cgje0rdws0i/Screenshot%202018-06-08%2023.13.37.png?dl=1" width="300px"></center>
 
-### 7.2 Tetris
-두 개의 실험 중에서 tetris만 살펴보려한다. tetrix는 linear function approximator와 greedy policy iteration을 사용할 경우 performance가 갑자기 떨어지는 현상이 있다. 밑의 그림에서 A의 spike가 있는 그래프가 이 경우이다. 그 밑에 낮게 누워있는 그래프는 일반적인 policy gradient 방법이다. 하지만 Natural policy gradient를 사용할 경우 B 그림에서 오른쪽 그래프와 같이 성능개선이 뚜렷하다. Policy Iteration 처럼 성능이 뚝 떨어지지 않고 안정적으로 유지한다. 또한 그림 C에서 보는 것처럼 오른쪽 그래프인 일반적인 gradient 방법보다 훨씬 빠르게 학습하는 것을 볼 수 있다.
+natural gradient가 covariant하지 않은 이유는 Fisher Information Matrix가 예상했던 바와는 달리 invariant metric이 아니기 때문이다. 또한 FIM이 invariant metric이 아닌 이유는 FIM을 계산할 때 $$\rho_s$$가 곱해지기 때문이다(state distribution에 대한 expectation. $$\rho_s$$가 곱해지는 것이 invariant에 미치는 영향이 무엇인지는 모르겠다). 하지만 여전히 의의가 있는 것은 기존 gradient 방법들보다 훨씬 빠르게 학습한다는 것이다.
 
-<img src="https://www.dropbox.com/s/644zpk53bqn31o1/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-23%2015.26.46.png?raw=1">
+### 6.2 simple 2-state MDP
+이제 다른 예제에서 NPG를 테스트한다. 2개의 state만 가지는 MDP를 고려해보자. [그림출처](http://repository.cmu.edu/cgi/viewcontent.cgi?article=1080&context=robotics). 그림으로보면 다음과 같다. x=0 상태와 x=1 상태 두 개가 존재한다. 에이전트는 각 상태에서 다시 자신의 상태로 되돌아오는 행동을 하거나 다른 상태로 가는 행동을 할 수 있다. 상태 x=0에서 다시 자기 자신으로 돌아오면 1의 보상을 받고 상태 x=1에서 자기 자신으로 돌아오면 2의 보상을 받는다. 따라서 결국 optimal policy는 상태 x=1에서 계속 자기 자신으로 돌아오는 행동을 취하는 것이다. 
+
+<img src="https://www.dropbox.com/s/g1x9yknzsrip59i/Screenshot%202018-06-08%2023.06.50.png?dl=1">
+
+문제를 좀 어렵게 만들기 위해 state distribution을 다음과 같이 설정한다. 즉, 대부분의 경우에 상태 x=0에서 에이전트가 시작하는 것이다. 
+
+$$
+\rho(x=0)=0.8,  \rho(x=1)=0.2
+$$
+
+일반적인 gradient 방법을 사용하면 다음과 같은 policy gradient 식에 따라서 업데이트를 하게 된다. 이 때, $$\rho(s)$$가 gradient에 곱해지므로 상태적으로 상태 0에서의 gradient 값이 커지게 된다. 따라서 에이전트는 상태 0에서의 gradient(상태 0에서 스스로에게 돌아오는 행동을 취하도록 정책을 업데이트하는 gradient)를 따라 parameterized policy를 update한다. 따라서 아래 그림의 첫번째 그림에서처럼 Reward가 1에서 오랜 시간동안 머무른다. 즉, 에이전트가 상태 0에서 self-loop를 계속 돌고 있다는 것이다. $$\rho(x=0)$$가 $$10^{-7}$$까지 떨어진다.
+
+$$\nabla\eta(\theta)=\sum_{s,a}\rho^{\pi}(s)\nabla\pi(a;s,\theta)Q^{\pi}(s,a)$$
+
+<center><img src="https://www.dropbox.com/s/xtb77mfazbppnss/Screenshot%202018-06-08%2023.14.24.png?dl=1" width="300px"></center>
+
+하지만 NPG를 사용할 경우에는 훨씬 빠르게 average reward가 2에 도달한다. gradient 방법이 $$1.7X10^(7)$$정도의 시간만에 2에 도달한 반면 NPG는 2만에 도달한다. 또한 $$\rho(x=0)$$가 $$10^{-5}$$이하로 떨어지지 않는다.
+
+한 가지 그래프를 더 살펴보자. 다음 그래프는 parameter $$\theta$$가 업데이트 되는 과정을 보여준다. 이 그래프에서는 parameter가 2개 있는 것이다. 일반적인 gradient가 아래 그래프에서 실선에 해당한다. 이 실선의 그래프는 보면 처음부터 중반까지 $$\theta_i$$만 거의 업데이트하는 것을 볼 수 있다. 그에 비해 NPG는 두 개의 parameter를 균등하게 업데이트하는 것을 볼 수 있다. 
+
+<center><img src="https://www.dropbox.com/s/g7pazozw2k6rd7x/Screenshot%202018-06-08%2023.23.25.png?dl=1" width="300px"></center>
+
+policy가 $$\pi(a;s,\theta)\propto exp(\theta_{sa})$$일 때, 다음과 같이 $$F_{-1}$$이 gradient 앞에 weight로 곱해지는데 이게 $$\rho$$와는 달리 각 parameter에 대해 균등하다. 따라서 위 그래프에서와 같이 각 parameter는 비슷한 비율로 업데이트가 되는 것이다.
+
+$$\bar{\nabla}\eta(\theta) = F^{-1}\nabla\eta(\theta)$$
+
+### 6.3 Tetris
+NPG를 테스트할 tetris 예제는 Neuro Dynamic Programming 책에 소개되어있다. 다음 그림은 tetris 예제를 보여준다. 보통 그림에서와 같이 state의 feature를 정해준다. [그림 출처](http://slideplayer.com/slide/5215520/)
+
+<img src="https://www.dropbox.com/s/y1halso9yermy8s/Screenshot%202018-06-08%2023.44.34.png?dl=1">
+
+이 예제에서도 exponantial family로 policy를 표현한다. $$\pi(a;s,\theta) \propto exp(\theta^T\phi_{sa})$$ 로 표현한다.
+
+tetris는 linear function approximator와 greedy policy iteration을 사용할 경우 performance가 갑자기 떨어지는 현상이 있다. 밑의 그림에서 A의 spike가 있는 그래프가 이 경우이다. 그 밑에 낮게 누워있는 그래프는 일반적인 policy gradient 방법이다. 하지만 Natural policy gradient를 사용할 경우 B 그림에서 오른쪽 그래프와 같이 성능개선이 뚜렷하다. Policy Iteration 처럼 성능이 뚝 떨어지지 않고 안정적으로 유지한다. 또한 그림 C에서 보는 것처럼 오른쪽 그래프인 일반적인 gradient 방법보다 훨씬 빠르게 학습하는 것을 볼 수 있다.
+
+<img src="https://www.dropbox.com/s/pr6s2qrqaic0wyj/Screenshot%202018-06-08%2023.40.16.png?dl=1">
+
+
+## 7. Discussion
+---
+
+- natural gradient method는 policy iteration에서와 같이 greedy action을 선택하도록 학습됌
+- line search와 함께 쓰면 natural gradient method는 더 policy iteration 같아짐
+- greedy policy iteration에서와는 달리 performance improvement가 보장됌
+- 하지만 F(Fisher information matrix)가 asymtotically Hessian으로 수렴하지 않음. asymtotically conjugate gradient method(Hessian의 inverse를 approx.로 구하는 방법)가 더 좋아 보일 수 있음
+- 하지만 Hessian이 항상 informative하지 않고(hessian이 어떤 정보를 주려면 positive definite와 같은 성질을 가져서 해당 함수가 convex인 것을 알 수 있다든지의 경우를 이야기하는데 hessian이 항상 positive definite가 아닐 수 있다는 것이다) tetris에서 봤듯이 natural gradient method가 더 효율적일 수 있음(pushing the policy toward choosing greedy optimal actions)
+- conjugate gradient method가 좀 더 maximum에 빠르게 수렴하지만, performance는 maximum에서 거의 안변하므로 좋다고 말하기 어려움(?). 이 부분에 대해서 추가적인 연구 필요.
