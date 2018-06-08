@@ -234,7 +234,29 @@ $$=\pi(a;s,\theta)(1+\alpha f^{\pi}(s,a;\bar{w}) + O(\delta\theta^2)$$
 
 policy 자체가 function approximator의 크기대로 업데이트가 되므로 local하게 best action의 probability는 커지고 다른 probability의 크기는 작아질 것이다. 하지만 만약 greedy improvement가 된다하더라도 그게 performance의 improvement를 보장하는 것은 아니다. 하지만 line search와 함께 사용할 경우 improvement를 보장할 수 있다. 
 
-## 6. Experiment
+## 6. Metrics and Curvatures
+---
+다음 식에 해당하는 G는 Fisher Information Matrix만 사용할 수 있는 것이 아니다.
+
+$$\vert d\theta \vert^2=\sum_{ij}(\theta)d\theta_id\theta_i=d\theta^TG(\theta)d\theta$$
+
+이 파트에서는 FIM과 다른 metric 사이의 관계를 다룬다. 
+
+- In the different setting of parameter estimation, the Fisher information converges to the ```Hessian```, so it is [asymptotically efficient](https://en.wikipedia.org/wiki/Efficiency_(statistics)#Asymptotic_efficiency)
+- 이 논문의 경우, 아마리 논문의 'blind separation case'와 유사한데 이 때는 꼭 asymtotically efficient하지 않다. 이 말은 즉 2nd order 수렴이 보장되지 않는다는 것이다.
+- [Mackay](http://www.inference.org.uk/mackay/ica.pdf) 논문에서 hessian에서 data independant한 term을 metric으로 가져오는 방법을 제안했다. 그래서 performance를 2번 미분해보면 다음과 같다. 하지만 다음 식에서는 모든 항이 data dependent하다(Q가 있으니까). 첫 번째 항이 그나마 FIM과의 관련성이 있을 수 있지만 Q 값이 curvature에 weight를 주는 방식 때문에 다르다고 할 수 있다.
+
+$$
+\nabla^2\eta(\theta)=\sum_{sa}\rho^{\pi}(s)(\nabla^2\pi(a;s)Q^{\pi}(s,a)+\nabla\pi(a;s)\nabla Q^{\pi}(s,a)^T+\nabla Q^{\pi}(s,a)\nabla\pi(a;s)^T)
+$$
+
+
+- hessian은 보통 positive definite가 아닐수도 있다. 따라서 local maxima가 될 때까지 Hessian이 사용하기 별로 안좋다. 그리고 local maxima에서는 Hessian보다는 Conjugate methods가 더 효율적이다. 
+
+이 파트에서는 무엇을 말하고 있는지 알기가 어렵다. FIM과 Hessian이 관련이 있다는 것을 알겠다. 하지만 asymtotically efficient와 같은 내용을 모르므로 내용의 이해가 어려웠다.
+
+
+## 7. Experiment
 ---
 논문에서는 natural gradient를 simple MDP와 tetris MDP에 대해서 테스트했다. practice에서는 Fisher information matrix는 다음과 같은 식으로 업데이트한다.
 
@@ -242,6 +264,33 @@ $$f\leftarrow f+\nabla log \pi(a_t; s_t, \theta)\nabla log \pi(a_t; s_t, \theta)
 
 T length trajectory에 대해서 f/T를 통해 F의 estimate를 구한다.
 
+### 7.1 Linear Quadratic regulator
+에이전트를 테스트할 환경은 다음과 같은 dynamics를 가지고 있다. $$u(t)$$는 control signal로서 에이전트의 행동이라고 생각하면 된다. $$\epsilon$$은 noise distribution으로 환경에 가해지는 노이즈이다. 에이전트의 목표는 적절한 $$u(t)$$를 통해 
+x(t)를 0으로 유지하는 것이다. 제어분야에서의 LQR controller 문제이다.
+
+$$
+x(t+1) = 0.7x(t)+u(t)+\epsilon(t)
+$$
+
+x(t)를 0으로 유지하기 위해서 $$x(t)^2$$를 cost로 잡고 이 cost를 최소화하도록 학습한다. 이 시스템을 linear라고 부르는 것은 아래 그림과 같이 선형의 형태를 띄기 때문이다. 이 논문에서 실험할 때는 이 그림에서의 system에 noise를 더해준 것이다. [그림 출처](https://stanford.edu/class/ee363/lectures/dlqr.pdf)
+
+<img src='https://www.dropbox.com/s/vz0q97lcek4oti5/Screenshot%202018-06-08%2014.21.10.png?dl=1'>
+
+이 실험에서 사용한 parameterized policy는 다음과 같다. parameter가 $$\theta_1$$과 $$\theta_2$$ 밖에 없는 상당히 간단한 policy이다. 
+
+$$
+\pi(u;x,\theta) \propto exp(\theta_1 s_1 x^2 + \theta_2 s_2 x)
+$$
+
+이 policy를 간단히 numpy와 matplotlib를 이용해서 그려봤다. $$\theta_1$$과 $$theta_2$$를 (0.5, 0.5), (1, 0), (0, 1)로 하고 $$s_1$$과 $$s_2$$는 1로 두었다. x는 -1에서 1까지의 범위로 그렸다. 
+<center><img src='https://www.dropbox.com/s/v69qyrwn7zurk8c/Screenshot%202018-06-08%2014.57.07.png?dl=1' width='500px'>
+
+
+
+
+<center><img src="https://www.dropbox.com/s/jb6cyzn7613x4bs/Screenshot%202018-06-08%2014.43.13.png?dl=1" width="300px">
+
+### 7.2 Tetris
 두 개의 실험 중에서 tetris만 살펴보려한다. tetrix는 linear function approximator와 greedy policy iteration을 사용할 경우 performance가 갑자기 떨어지는 현상이 있다. 밑의 그림에서 A의 spike가 있는 그래프가 이 경우이다. 그 밑에 낮게 누워있는 그래프는 일반적인 policy gradient 방법이다. 하지만 Natural policy gradient를 사용할 경우 B 그림에서 오른쪽 그래프와 같이 성능개선이 뚜렷하다. Policy Iteration 처럼 성능이 뚝 떨어지지 않고 안정적으로 유지한다. 또한 그림 C에서 보는 것처럼 오른쪽 그래프인 일반적인 gradient 방법보다 훨씬 빠르게 학습하는 것을 볼 수 있다.
 
 <img src="https://www.dropbox.com/s/644zpk53bqn31o1/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-23%2015.26.46.png?raw=1">
