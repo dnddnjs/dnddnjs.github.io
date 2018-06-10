@@ -28,29 +28,39 @@ Approximation (2000)](hhttps://papers.nips.cc/paper/1713-policy-gradient-methods
 - gradient descent는 parameter를 한 번에 많이 update 할 수 없는 반면, natural gradient는 가장 좋은 action을 고르도록 학습이 됌 (sutton 논문에서와 같이 compatible value function을 사용할 경우 policy iteration에서 policy improvement 1 step의 과정에서)
 - simple MDP와 tetris MDP에서 테스트함. 성능이 많이 향상
 
-(개인생각) 뉴럴넷을 사용할 경우 gradient가 steepest direction이 아닌 경우가 많다. 이럴 경우 natural gradient가 steepest direction이 된다는 연구가 이뤄지고 있었다. 강화학습의 policy gradient은 objective function의 gradient를 따라 policy를 업데이트한다. 이 때, policy는 parameterized 되는데 이 경우에도 gradient 대신에 natural gradient가 좋다는 것을 실험해보는 논문인 것 같다. 
+## 2. Personal Interpretation and Thinking
+(개인생각) 뉴럴넷을 사용할 경우 gradient가 steepest direction이 아닌 경우가 많다. 뉴럴넷의 parameter space가 우리가 보통 생각하는 직선으로 쭉쭉 뻗어있는 Euclidean space가 아니다. 좀 더 일반적으로는 구의 표면과 같이 휘어져있는 공간 즉, 리만 공간(Riemannian space)로 표현할 수 있다. 이와 같은 공간에서는 natural gradient가 steepest direction이 된다는 연구가 이뤄지고 있었다. 강화학습의 policy gradient은 objective function의 gradient를 따라 policy를 업데이트한다. 이 때, policy는 parameterized 되는데 이 경우에도 gradient 대신에 natural gradient가 좋다는 것을 실험해보는 논문이다. 
 
-2차미분을 이용한 다른 방법들과의 비교가 생각보다 없는 점이 아쉽다.(Hessian을 이용한다거나 conjugate gradient method를 이용한다거나). 또한 natural gradient 만으로 업데이트하면 policy의 improvement보장이 안될 수 있다. policy의 improvement를 보장하기 위해 line search도 써야하는데 line search를 어떻게 쓰는지에 대한 자세한 언급이 없다.
+gradient가 non-covariant 해서 생기는 문제는 간단히 말하자면 다음과 같다. policy가 parameterized된 상황에서는 같은 policy라도 다른 parameter를 가질 수 있다. 이 때, steepest direction은 두 경우에 같은 방향을 가리켜야하는데 non-covariant한 경우 그렇지 못하다. 이것은 결국 느린 학습으로 연결이 된다. 
 
-natural policy gradient 논문은 natural gradient + policy gradient를 처음 적용했다는데 의의가 있다. 하지만 이 논문이 문제 삼은 gradient는 non-covariant하다(이게 어떤 문제가 있는지 모르겠다)라는 문제를 natural gradient를 통해 해결하지 못했다(논문에서 이 부분이 명확히 표현된건지 모르겠다). NPG의 뒤를 잇는 논문이 "covariant policy search"와 "natural actor-critic"에서 covariant하지 못하다는 것을 문제 삼는다. 
+논문에서 2차미분 방법론들과 짧게 비교를 한다. 하지만 2차미분을 이용한 다른 방법들과의 비교가 생각보다 없는 점이 아쉽다.(Hessian을 이용한다거나 conjugate gradient method를 이용한다거나). 실험을 통해 FIM이 hessian에 수렴안하는 거라던지 Hessian 방법론이 local maxima 부근에서 상당히 느리다던지의 결과를 보여줬었으면 좋았을 것 같다. 
+
+또한 natural gradient 만으로 업데이트하면 policy의 improvement보장이 안될 수 있다. policy의 improvement를 보장하기 위해 line search도 써야하는데 line search를 어떻게 쓰는지에 대한 자세한 언급이 없다. 즉, 자세한 algorithm 설명이 없다.
+
+natural policy gradient 논문은 natural gradient + policy gradient를 처음 적용했다는데 의의가 있다. 하지만 이 논문이 문제 삼은 gradient는 non-covariant하다라는 문제를 natural gradient를 통해 해결하지 못했다(Experiment를 통해 covariant gradient가 되지 못했다는 것이 보인다). NPG의 뒤를 잇는 논문이 "covariant policy search"와 "natural actor-critic"에서 covariant하지 못하다는 것을 해결하기 위해 Fisher Information Matrix를 sample 하나 하나에 대해서 구하는 것이 아니라 trajectory 전체에 대해서 구한다. 
 
 또한 논문은 pg의 두 가지 세팅 중에 average-reward setting(infinite horizon)에서만 NPG를 다룬다. "covariant policy search" 논문에서는 average-reward setting과 start-state setting 모두에 대해서 npg를 적용한다. 
 
-natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다(인용된 논문들을 잘 안봐서 그럴지도 모른다).
+natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 npg 학습의 과정을 자세하게 설명하지 않았고 다른 2차 미분 방법들과 비교를 많이 하지 않은 점이 아쉬운 논문이다.
 
 
-## 2. Introduction
+## 3. Introduction
 ---
 
 - direct policy gradient method는 future reward의 gradient를 따라 policy를 update함
-- 하지만 gradient descent는 non-covariant(1차 미분이므로 이렇게 표현하지 않나 싶음)
+- 하지만 gradient descent는 non-covariant
 - 이 논문에서는 covarient gradient를 제시함 = natural gradient
-- natural gradient와 policy iteration의 연관성을 설명하겠음: natural policy gradient is moving toward choosing a greedy optimal action (이런 연결점을 보이는 것이 왜 중요한 것일까?)
+- natural gradient와 policy iteration의 연관성을 설명하겠음: natural policy gradient is moving toward choosing a greedy optimal action (이런 연결점은 아마도 step-size를 덜 신경쓰고 싶어서 그런게 아닌가 싶다)
 
+논문의 Introduction 부분에 다음 멘트가 있다. 이 글만 봐서는 이해가 안갔는데 Mackay 논문에 좀 더 자세히 나와있다. 
+<img src="https://www.dropbox.com/s/41xhhr7lgfk24a1/Screenshot%202018-06-10%2011.45.18.png?dl=1">
 
-## 3. A Natural Gradient
+[Mackay](http://www.inference.org.uk/mackay/ica.pdf)논문에서는 다음과 같이 언급하고 있다. Back-propagation을 사용할 경우에 learning rate를 dimension에 1/n로 사용하면 수렴한다는 것이 증명됐다. 하지만 너무 느리다. 
+<img src="https://www.dropbox.com/s/us9ezc7vxgrkez6/Screenshot%202018-06-10%2011.47.21.png?dl=1">
+
+## 4. A Natural Gradient
 ---
-### 3.1 환경에 대한 설정
+### 4.1 환경에 대한 설정
 이 논문에서 제시하는 학습 환경은 다음과 같다.
 
 - MDP: tuple $$(S, s_0, A, R, P)$$
@@ -65,15 +75,15 @@ natural gradient + policy gradient를 처음 제시했다는 것은 좋지만 np
 - state-action value: $$Q^{\pi}(s,a)=E_{\pi}[\sum_{t=0}^{\infty}R(s_t, a_t)-\eta(\pi)\vert s_0=s, a_0=a]$$
 - 정책이 $$\theta$$로 parameterize되어있으므로 performance는 $$\eta(\pi_{\theta})$$인데 $$\eta(\theta)$$로 쓸거임
 
-### 3.2 Natural Gradient
-#### 3.2.1 Policy gradient Theorem
+### 4.2 Natural Gradient
+#### 4.2.1 Policy gradient Theorem
 서튼 pg 논문의 policy gradient theorem에 따라 exact gradient of the average reward는 다음과 같다. 다음 수식이 어떻게 유도되었는지, 어떤 의미인지 모른다면 서튼 pg 논문을 통해 제대로 이해하는 것이 좋다.
 
 $$\nabla\eta(\theta)=\sum_{s,a}\rho^{\pi}(s)\nabla\pi(a;s,\theta)Q^{\pi}(s,a)$$
 
 steepest descent direction of $$\eta(\theta)$$는 $$\eta(\theta + d\theta)$$를 최소화하는 $$d\theta$$로 정의된다. 이 때, $$\vert d\theta \vert^2$$가 일정 크기 이하인 것으로 제약조건을 준다(held to small constant). Euclidian space에서는 $$\eta(\theta)$$가 steepest direction이지만 Riemannian space에서는 natural gradient가 steepest direction이다. 
 
-#### 3.2.2 Natural gradient 증명
+#### 4.2.2 Natural gradient 증명
 Riemannian space에서 거리는 다음과 같이 정의된다. $$G(\theta)$$는 특정한 양수로 이루어진 matrix이다.
 
 $$\vert d\theta \vert^2=\sum_{ij}(\theta)d\theta_id\theta_i=d\theta^TG(\theta)d\theta$$
@@ -124,9 +134,9 @@ $$F_s(\theta)=E_{\pi(a;s,\theta)}[\frac{\partial log \pi(a;s, \theta)}{\partial 
 
 왜 G가 F가 되는지는 아직 잘 모르겠다. 거리라는 개념을 표현하려면 
 
-## 4. The Natural Gradient and Policy Iteration
+## 5. The Natural Gradient and Policy Iteration
 ---
-### 4.1 Theorem 1
+### 5.1 Theorem 1
 sutton pg 논문에 따라 $$Q^{\pi}(s,a)$$를 approximation한다. approximate하는 함수 $$f^{\pi}(s,a;w)$$는 다음과 같다.(compatible value function)
 
 $$f^{\pi}(s,a;w)=w^T\psi^{\pi}(s,a)$$
@@ -155,7 +165,7 @@ $$\bar{w}=F(\theta)^{-1}\nabla\eta(\theta)$$
 
 이 식은 natural gradient 식과 동일하다. 이 식은 policy가 update 될 때, value function approximator의 parameter 방향으로 이동한다는 것을 의미한다. function approximation이 정확하다면 그 parameter의 natural policy gradient와 inner product가 커야한다. 
 
-### 4.2 Theorem 2: Greedy Polict Improvement
+### 5.2 Theorem 2: Greedy Polict Improvement
 natural policy gradient가 단순히 더 좋은 행동을 고르도록 학습하는게 아니라 가장 좋은 (greedy) 행동을 고르도록 학습한다는 것을 증명하는 파트이다. 이것을 일반적인 형태의 policy에 대해서 증명하기 전에 exponential 형태의 policy에 대해서 증명하는 것이 Theorem 2이다.
 
 policy를 다음과 같이 정의한다.
@@ -224,7 +234,7 @@ $$=\pi(a;s,\theta)(1+\alpha f^{\pi}(s,a;\bar{w}) + O(\delta\theta^2)$$
 
 policy 자체가 function approximator의 크기대로 업데이트가 되므로 local하게 best action의 probability는 커지고 다른 probability의 크기는 작아질 것이다. 하지만 만약 greedy improvement가 된다하더라도 그게 performance의 improvement를 보장하는 것은 아니다. 하지만 line search와 함께 사용할 경우 improvement를 보장할 수 있다. 
 
-## 5. Metrics and Curvatures
+## 6. Metrics and Curvatures
 ---
 다음 식에 해당하는 G는 Fisher Information Matrix만 사용할 수 있는 것이 아니다.
 
@@ -246,7 +256,7 @@ $$
 이 파트에서는 무엇을 말하고 있는지 알기가 어렵다. FIM과 Hessian이 관련이 있다는 것을 알겠다. 하지만 asymtotically efficient와 같은 내용을 모르므로 내용의 이해가 어려웠다.
 
 
-## 6. Experiment
+## 7. Experiment
 ---
 논문에서는 natural gradient를 simple MDP와 tetris MDP에 대해서 테스트했다. practice에서는 Fisher information matrix는 다음과 같은 식으로 업데이트한다.
 
@@ -254,7 +264,7 @@ $$f\leftarrow f+\nabla log \pi(a_t; s_t, \theta)\nabla log \pi(a_t; s_t, \theta)
 
 T length trajectory에 대해서 f/T를 통해 F의 estimate를 구한다.
 
-### 6.1 Linear Quadratic regulator
+### 7.1 Linear Quadratic regulator
 에이전트를 테스트할 환경은 다음과 같은 dynamics를 가지고 있다. $$u(t)$$는 control signal로서 에이전트의 행동이라고 생각하면 된다. $$\epsilon$$은 noise distribution으로 환경에 가해지는 노이즈이다. 에이전트의 목표는 적절한 $$u(t)$$를 통해 
 x(t)를 0으로 유지하는 것이다. 제어분야에서의 LQR controller 문제이다.
 
@@ -284,7 +294,7 @@ $$
 
 natural gradient가 covariant하지 않은 이유는 Fisher Information Matrix가 예상했던 바와는 달리 invariant metric이 아니기 때문이다. 또한 FIM이 invariant metric이 아닌 이유는 FIM을 계산할 때 $$\rho_s$$가 곱해지기 때문이다(state distribution에 대한 expectation. $$\rho_s$$가 곱해지는 것이 invariant에 미치는 영향이 무엇인지는 모르겠다). 하지만 여전히 의의가 있는 것은 기존 gradient 방법들보다 훨씬 빠르게 학습한다는 것이다.
 
-### 6.2 simple 2-state MDP
+### 7.2 simple 2-state MDP
 이제 다른 예제에서 NPG를 테스트한다. 2개의 state만 가지는 MDP를 고려해보자. [그림출처](http://repository.cmu.edu/cgi/viewcontent.cgi?article=1080&context=robotics). 그림으로보면 다음과 같다. x=0 상태와 x=1 상태 두 개가 존재한다. 에이전트는 각 상태에서 다시 자신의 상태로 되돌아오는 행동을 하거나 다른 상태로 가는 행동을 할 수 있다. 상태 x=0에서 다시 자기 자신으로 돌아오면 1의 보상을 받고 상태 x=1에서 자기 자신으로 돌아오면 2의 보상을 받는다. 따라서 결국 optimal policy는 상태 x=1에서 계속 자기 자신으로 돌아오는 행동을 취하는 것이다. 
 
 <img src="https://www.dropbox.com/s/g1x9yknzsrip59i/Screenshot%202018-06-08%2023.06.50.png?dl=1">
@@ -311,7 +321,7 @@ policy가 $$\pi(a;s,\theta)\propto exp(\theta_{sa})$$일 때, 다음과 같이 $
 
 $$\bar{\nabla}\eta(\theta) = F^{-1}\nabla\eta(\theta)$$
 
-### 6.3 Tetris
+### 7.3 Tetris
 NPG를 테스트할 tetris 예제는 Neuro Dynamic Programming 책에 소개되어있다. 다음 그림은 tetris 예제를 보여준다. 보통 그림에서와 같이 state의 feature를 정해준다. [그림 출처](http://slideplayer.com/slide/5215520/)
 
 <img src="https://www.dropbox.com/s/y1halso9yermy8s/Screenshot%202018-06-08%2023.44.34.png?dl=1">
@@ -323,7 +333,7 @@ tetris는 linear function approximator와 greedy policy iteration을 사용할 �
 <img src="https://www.dropbox.com/s/pr6s2qrqaic0wyj/Screenshot%202018-06-08%2023.40.16.png?dl=1">
 
 
-## 7. Discussion
+## 8. Discussion
 ---
 
 - natural gradient method는 policy iteration에서와 같이 greedy action을 선택하도록 학습됌
