@@ -255,6 +255,9 @@ $$
 
 이 파트에서는 무엇을 말하고 있는지 알기가 어렵다. FIM과 Hessian이 관련이 있다는 것을 알겠다. 하지만 asymtotically efficient와 같은 내용을 모르므로 내용의 이해가 어려웠다.
 
+Mackay 논문에서 해당 부분은 다음과 같다. 
+
+<img src="https://www.dropbox.com/s/x4n6z6pdyi7xtb9/Screenshot%202018-06-10%2012.04.13.png?dl=1">
 
 ## 7. Experiment
 ---
