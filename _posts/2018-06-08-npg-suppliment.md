@@ -104,3 +104,13 @@ distance에 대한 식과 gradient 식을 사용해서 natural gradient가 covar
 <img src="https://www.dropbox.com/s/uook5mwpwgf7q89/Screenshot%202018-06-09%2018.04.07.png?dl=1">
 
 <img src="https://www.dropbox.com/s/deh443s2xilfoc5/Screenshot%202018-06-09%2018.04.24.png?dl=1">
+
+## 2. Newton's Method
+--
+
+optimize할 함수를 2nd order로 approximation해서 optimize하는 방법이다. Natural Gradient 방법론에서는 1nd order로 objective funciton을 approximation 했다는 것을 기억하자. Newton's method에서는 Hessian이 positive이면 convex 함수가 되어서 최소값을 구할 수 있다. 그러면 parameter를 이 최소값 지점으로 업데이트를 하고 이 과정을 반복하면 gradient 방법론 보다 훨씬 빠르게 수렴할 수 있다. 
+
+[ppt 출처](https://www.cs.ccu.edu.tw/~wtchu/courses/2014s_OPT/Lectures/Chapter%209%20Newton's%20Method.pdf)
+
+
+<img src="https://www.dropbox.com/s/2dhqtkindfqzsdx/Screenshot%202018-06-10%2011.09.50.png?dl=1">
