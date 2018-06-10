@@ -9,7 +9,7 @@ comments: true
 
 # A Natural Policy Gradient [2001]
 
-<img src="https://www.dropbox.com/s/hjnb3xkotjghw3t/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-22%2023.02.25.png?raw=1">
+<img src="https://www.dropbox.com/s/it82tfhfmhg9uwp/Screenshot%202018-06-10%2010.58.52.png?dl=1">
 
 - 논문 저자: Sham Kakade
 - 논문 링크: [https://papers.nips.cc/paper/2073-a-natural-policy-gradient.pdf](https://papers.nips.cc/paper/2073-a-natural-policy-gradient.pdf)
@@ -332,3 +332,4 @@ tetris는 linear function approximator와 greedy policy iteration을 사용할 �
 - 하지만 F(Fisher information matrix)가 asymtotically Hessian으로 수렴하지 않음. asymtotically conjugate gradient method(Hessian의 inverse를 approx.로 구하는 방법)가 더 좋아 보일 수 있음
 - 하지만 Hessian이 항상 informative하지 않고(hessian이 어떤 정보를 주려면 positive definite와 같은 성질을 가져서 해당 함수가 convex인 것을 알 수 있다든지의 경우를 이야기하는데 hessian이 항상 positive definite가 아닐 수 있다는 것이다) tetris에서 봤듯이 natural gradient method가 더 효율적일 수 있음(pushing the policy toward choosing greedy optimal actions)
 - conjugate gradient method가 좀 더 maximum에 빠르게 수렴하지만, performance는 maximum에서 거의 안변하므로 좋다고 말하기 어려움(?). 이 부분에 대해서 추가적인 연구 필요.
+
