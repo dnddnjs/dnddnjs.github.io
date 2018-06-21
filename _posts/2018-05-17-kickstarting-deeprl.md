@@ -130,4 +130,4 @@ $$l_{A3C}(w, x, t) + \lambda_kH(\pi_T(a \vert x_t) \Vert \pi_S(a \vert x_t, w))$
 - teacher가 있는 상황이 많지 않을 것 같다는 생각이 듬(현실적일까..?)
 - multiple teacher를 두는 것은 자원이 충분하지 않은 상황에서 오히려 전반적인 프로세스의 크기를 키우는 게 아닐까 싶음. 
 - 바닥부터 스스로 학습하면서 자아를 분리해서 하나는 teacher로 하나는 student가 되는 방법은 어떨까 싶음
-- 
+
