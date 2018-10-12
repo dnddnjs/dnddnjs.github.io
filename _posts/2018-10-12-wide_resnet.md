@@ -77,7 +77,7 @@ residual networks](https://arxiv.org/abs/1603.05027)
 
 ### Experiment Results
 - CIFAR10에서 ZCA whitening 전처리를 함. 하지만 일부 실험에서는 그냥 mean/std normalization만 했음
-- 1. Type of convolutions in a block. parameter 수 비슷하게 유지
+- Type of convolutions in a block. parameter 수 비슷하게 유지
   - WRN-40-2 에서 테스트: B(1,3,1), B(3,1), B(1,3), B(3,1,1)
   - WRN-28-2: B(3,3)
   - WRN-22-2: B(3,1,3)
@@ -85,8 +85,9 @@ residual networks](https://arxiv.org/abs/1603.05027)
 
 <img src="https://www.dropbox.com/s/rgf9m2qcgw0vlqr/Screenshot%202018-10-12%2019.01.14.png?dl=1">
 
-- 2. Number of convolutions per block
+- Number of convolutions per block
   - deeping factor l을 변화시켜보는 실험임
+  - WRN-40-2 + 3x3 convolution을 사용함
   - 
 
 <img src="https://www.dropbox.com/s/9lr89qawsac7knc/Screenshot%202018-10-12%2019.03.40.png?dl=1">
