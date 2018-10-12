@@ -44,6 +44,22 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 <br/>
 
 ### Wide Residual Networks
+- 이전 resnet 들에 대해서 이야기는 안하겠다. 하지만 하나 기억해야할 것은 resnet 저자의 후속 논문으로 인해 conv-BN-ReLU 이 아니라 BN-ReLU-conv 을 사용한다는 점이다. [관련 논문: Identity mappings in deep
+residual networks](https://arxiv.org/abs/1603.05027) 
+
+- wide resnet에서는 bottleneck layer는 고려하지 않는다. bottleneck은 layer를 더 깊게 쌓고자 하는 것인데 이 논문은 그게 초점이 아니니까.
+- layer를 더 wider하게 만드는 걸 역시 다양하게 테스트해봤다. 간단히 다음과 같이
+  - block 마다 conv를 더 넣어봤음
+  - 각 conv의 feature plane을 더 넣어봤음
+  - conv의 filter 사이즈를 늘려봤음
+<img src="https://www.dropbox.com/s/7h5whxvdthu8y18/Screenshot%202018-10-12%2018.15.28.png?dl=1">
+
+- Type of convolutions in residual block
+  - block 내에 feature plane의 개수는 다 똑같음
+  - original basic block은 B(3, 3)임. 3x3 conv + 3x3 conv를 의미함.
+  - 이 3x3을 1x1로 대체할 수 있을까해서 여러가지로 실험함.
+
+<img src="https://www.dropbox.com/s/h112dtgbhh7qw0p/Screenshot%202018-10-12%2018.36.18.png?dl=1">
 
 
 
