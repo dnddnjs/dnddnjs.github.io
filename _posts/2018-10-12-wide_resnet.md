@@ -39,7 +39,7 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
   - stochastic depth 논문에서도 이 문제를 다룬다. dropout처럼 residual block을 랜덤하게 안쓴다. 이러한 방법이 효과를 보는 것 자체가 우리의 주장이 맞다는 것을 보여준다. (개인적으로 논리가 약하다고 생각함. 명쾌한 전개는 아닌듯)
 
 - wider deep residual network가 다른 resnet보다 layer가 50배는 적으면서 2배 빠름
-- dropout을 block 사이에서 쓰려고 함. layer의 width를 넓힘으로서 parameter수가 많아졌는데 그로 인한 drawback를 보완하기 위함임
+- dropout을 conv layer 사이에서 쓰려고 함. layer의 width를 넓힘으로서 parameter수가 많아졌는데 그로 인한 drawback를 보완하기 위함임
 
 <br/>
 
@@ -48,10 +48,10 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 residual networks](https://arxiv.org/abs/1603.05027) 
 
 - wide resnet에서는 bottleneck layer는 고려하지 않는다. bottleneck은 layer를 더 깊게 쌓고자 하는 것인데 이 논문은 그게 초점이 아니니까.
-- layer를 더 wider하게 만드는 걸 역시 다양하게 테스트해봤다. 간단히 다음과 같이
-  - block 마다 conv를 더 넣어봤음
-  - 각 conv의 feature plane을 더 넣어봤음
-  - conv의 filter 사이즈를 늘려봤음
+- residual block의 respresentation power를 늘리는 방법으로는 다음 세 가지가 있음. 세번째는 3x3 이상은 안쓰므로 탈락
+  - block 마다 conv를 더 넣음
+  - 각 conv의 feature plane을 더 넣음
+  - conv의 filter 사이즈를 늘림
 <img src="https://www.dropbox.com/s/7h5whxvdthu8y18/Screenshot%202018-10-12%2018.15.28.png?dl=1">
 
 - Type of convolutions in residual block
@@ -61,6 +61,33 @@ residual networks](https://arxiv.org/abs/1603.05027)
 
 <img src="https://www.dropbox.com/s/h112dtgbhh7qw0p/Screenshot%202018-10-12%2018.36.18.png?dl=1">
 
+- 결국 사용하는 residual block의 모양은 다음 그림에서 마지막과 같음. dropout이 conv 사이에 들어감
+<img src="https://www.dropbox.com/s/f5dwsef7crx97f7/Screenshot%202018-10-12%2018.46.05.png?dl=1">
+- 논문에서 사용하는 기호들
+  - l: deeping factor(number of convoluion in block)
+  - d: total number of blocks
+  - k: widening factor --> multiply the number of features
+  - n: total number of layers
+  - 앞으로 WRN-n-k 이런식으로 표현할 것임. 
 
+- 전반적인 wide resnet 구조는 다음과 같음
+<img src="https://www.dropbox.com/s/ecxzfjhi878c8wd/Screenshot%202018-10-12%2018.54.00.png?dl=1">
 
+<br/>
 
+### Experiment Results
+- CIFAR10에서 ZCA whitening 전처리를 함. 하지만 일부 실험에서는 그냥 mean/std normalization만 했음
+- 1. Type of convolutions in a block. parameter 수 비슷하게 유지
+  - WRN-40-2 에서 테스트: B(1,3,1), B(3,1), B(1,3), B(3,1,1)
+  - WRN-28-2: B(3,3)
+  - WRN-22-2: B(3,1,3)
+  - 결론: B(3,3) 사용
+
+<img src="https://www.dropbox.com/s/rgf9m2qcgw0vlqr/Screenshot%202018-10-12%2019.01.14.png?dl=1">
+
+- 2. Number of convolutions per block
+  - deeping factor l을 변화시켜보는 실험임
+  - 
+
+<img src="https://www.dropbox.com/s/9lr89qawsac7knc/Screenshot%202018-10-12%2019.03.40.png?dl=1">
+- 3. Width of residual blocks
