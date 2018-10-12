@@ -88,7 +88,31 @@ residual networks](https://arxiv.org/abs/1603.05027)
 - Number of convolutions per block
   - deeping factor l을 변화시켜보는 실험임
   - WRN-40-2 + 3x3 convolution을 사용함
-  - 
+  - parameter 수는 유지하면서 실험
+  - B(3), B(3,3), B(3,3,3), B(3,3,3,3) --> B(3,3)이 최고 성능
+  - l=3, 4가 안 좋은 건 residual connection이 상대적으로 감소해서 optimize가 어려운게 아닌가 싶음 
 
 <img src="https://www.dropbox.com/s/9lr89qawsac7knc/Screenshot%202018-10-12%2019.03.40.png?dl=1">
-- 3. Width of residual blocks
+
+- Width of residual blocks
+  - 어떻게 보면 이 논문의 하이라이트
+  - 다시 말하자면 width = feature plane의 수
+  - n=40, 28, 22, 16 / k = 1, 2, 4, 8, 10, 12 를 실험해봄
+  - CIFAR10에 대해서는 n=28 / k=10이 제일 좋은 정확도
+
+ <img src="https://www.dropbox.com/s/8kaggunevtssp8r/Screenshot%202018-10-12%2021.02.35.png?dl=1">
+
+ - 다른 resnet과의 비교
+   - 이 실험에서는 dropout 사용 x
+   - 일반적인 augmentation만 실행
+   - 여전히 WRN-28-10이 제일 좋은 성능. ResNet-1001보다 0.92% 높음.
+   - 비슷한 parameter 수를 가진 ResNet-1202와 WRN-40-4를 비교하면 학습속도가 5배 차이남.
+
+<img src="https://www.dropbox.com/s/rilyppjh5hteue7/Screenshot%202018-10-12%2021.11.22.png?dl=1">
+
+- dropout에 관련된 실험. dropout은 0.3을 사용
+<img src="https://www.dropbox.com/s/bugro9g0uxbx40t/Screenshot%202018-10-12%2021.13.13.png?dl=1">
+
+- dataset 별 최고 성능 모델. CIFAR10은 WRN-40-10 + dropout
+<img src="https://www.dropbox.com/s/hmjuiunmjlzsev7/Screenshot%202018-10-12%2021.15.10.png?dl=1">
+
