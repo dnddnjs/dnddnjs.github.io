@@ -9,10 +9,10 @@ comments: true
 
 ## 논문 제목: Kickstartking Deep Reinforcement Learning [2018 March]
 
-<img src="https://www.dropbox.com/s/7q8mudzrp3g5vwa/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202018-05-17%2017.46.47.png?raw=1">
-- 논문 저자: Simon Schmitt (DeepMind)
-- 논문 링크: [https://arxiv.org/pdf/1803.03835.pdf](https://arxiv.org/pdf/1803.03835.pdf)
-- 함께 보면 좋을 논문: [policy distillation(2015)](https://arxiv.org/pdf/1511.06295.pdf)
+<img src="https://www.dropbox.com/s/b0dp6tse95zudzw/Screenshot%202018-10-09%2020.54.11.png?dl=1">
+- 논문 저자: Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun(Microsoft Research)
+- 논문 링크: [https://arxiv.org/pdf/1512.03385.pdf](https://arxiv.org/pdf/1512.03385.pdf)
+
 
 ## 1. Abstract
 ---
