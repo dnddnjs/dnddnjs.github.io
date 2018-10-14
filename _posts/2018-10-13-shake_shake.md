@@ -67,6 +67,8 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 
 <img src="https://www.dropbox.com/s/t2ijf2ahf5dkxa1/Screenshot%202018-10-13%2019.32.12.png?dl=1">
 
+<br/>
+
 ### Improving on the best single shot published results on CIFAR
 
 - CIFAR-10 implementation detail
@@ -85,5 +87,13 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 
 <img src="https://www.dropbox.com/s/2t3twjh4sah9gwv/Screenshot%202018-10-13%2020.08.06.png?dl=1">
 
-- 다른 state of the art 알고리즘들의 비교
+- 다른 state of the art 알고리즘들의 비교. Wide ResNet에 비해 1% 정도의 개선이 있었다.
 <img src="https://www.dropbox.com/s/0pz8j5u8a24pr5z/Screenshot%202018-10-13%2020.09.49.png?dl=1">
+
+<br/>
+
+### Correlation between residual branches
+
+- regularization을 통해 correlation이 늘었는지 줄었는지를 확인하기 위해 다음 실험을 했다.
+
+<img src="https://www.dropbox.com/s/5ou3gczb6dgj17z/Screenshot%202018-10-13%2020.24.27.png?dl=1">
