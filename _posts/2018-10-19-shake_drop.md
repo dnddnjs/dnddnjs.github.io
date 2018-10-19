@@ -16,7 +16,7 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 
 ## 논문 제목: SHAKEDROP REGULARIZATION [2017 Feb]
 
-<img src="https://www.dropbox.com/s/zd09fkmeu47wq3q/Screenshot%202018-10-19%2015.13.31.png?dl=0">
+<img src="https://www.dropbox.com/s/zd09fkmeu47wq3q/Screenshot%202018-10-19%2015.13.31.png?dl=1">
 - 논문 저자: Yoshihiro Yamada, Masakazu Iwamura, Koichi Kise
 - 논문 링크: [https://arxiv.org/pdf/1802.02375.pdf](https://arxiv.org/pdf/1802.02375.pdf)
 - 논문 저자 코드: [https://github.com/xgastaldi/shake-shake](https://github.com/xgastaldi/shake-shake)
