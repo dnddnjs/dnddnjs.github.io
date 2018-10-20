@@ -83,5 +83,20 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 <br/>
 
 ### Experiments
-- CIFAR 100 데이터에 대해서 alpha beta의 range를 바꿔가며 테스트
+- CIFAR 100 데이터에 대해서 alpha beta의 range를 바꿔가며 테스트. alpha는 [-1, 1] 사이의 값을 사용하고 beta는 [0, 1] 사이의 값을 사용하는 것이 제일 성능이 좋음.
 <img src="https://www.dropbox.com/s/rybln8m5fmip910/Screenshot%202018-10-20%2014.42.09.png?dl=1">
+
+- scaling factor 적용하는 방법에 대해서도 테스트함. Pixel은 scaling factor가 each residual block의 each element에 적용된다는 것. Pixel이 가장 성능은 좋지만 메모리를 많이 먹기 때문에 Image 방법을 사용함. 
+
+<img src="https://www.dropbox.com/s/ppjgqxkxckqhlag/Screenshot%202018-10-20%2014.49.36.png?dl=1">
+
+- regularization 방법을 비교함. 이 때 ResNet, PyramidNet, Wide ResNet, ResNeXt에서 각각 비교. 하나 중요한 점은 residual block이 BN으로 끝나야 한다는 것. 그러지 않으면 alpha beta의 값이 커질 때 학습이 발산할 수 있다. 따라서 EraseReLU가 우리 방법과 상당히 잘 맞음(Resnet과 ResNeXt 에서만). 결론은 Pyramidnet + shakedrop이 가장 성능 좋음
+
+<img src="https://www.dropbox.com/s/nzp5z87drritxiv/Screenshot%202018-10-20%2014.56.07.png?dl=1">
+
+- 가장 중요한 CIFAR10에서의 성능! 두 가지가 필요하다. longer learning은 cosine annealing 을 learning rate에 적용해서 1800 epoch 정도 학습한다. image preprocesiing은 learning image의 부분을 랜덤하게 채운다. (음.. 이건 잘 모르겠다). 결론적으로 CIFAR10 데이터에서 2.31 % error rate를 달성!
+
+<img src="https://www.dropbox.com/s/0c8ahsplod8asry/Screenshot%202018-10-20%2015.01.05.png?dl=1">
+
+- 다음은 네트워크 architecture
+<img src="https://www.dropbox.com/s/n1ls9dsr5cqn5qf/Screenshot%202018-10-20%2015.02.08.png?dl=1">
