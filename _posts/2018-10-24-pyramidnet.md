@@ -74,5 +74,35 @@ like ensembles of relatively shallow networks" 논문에 따르면 ResNet은 여
 
 - Zero-padded shorcut connection
   - resnet과 pre-activation resnet에서는 다양한 타입의 shortcut을 연구함. 이전 연구에 따르면 identity mapping이 다른 형태보다 파라메터를 가지지 않는다는 장점이 있어서 더 낫다. 파라메터가 더 적으면 오버피팅될 수 있는 가능성이 더 적기 때문이다. 또한 gradient를 그대로 흘려보낼 수 있다.
-  - pyramidnet에서는 identity mapping을 사용할 수 없다. pyramidnet에서 사용하는 zero-padded identity mapping shortcut은 다음과 같다. 
+  - pyramidnet에서는 identity mapping을 사용할 수 없다. pyramidnet에서 사용하는 zero-padded identity mapping shortcut은 다음과 같다. k는 residual unit의 index, n는 group의 index, l은 feature map의 index이다. 매 unit 마다 feature map dimension이 늘어난다. 이전 unit의 feature map dimension은 Dk-1이고 현재 unit의 feature map dimension이 Dk라고 하면 (Dk)-(Dk-1) 만큼의 dimension을 zero-padding으로 채우는 것이다. 
   <img src="https://www.dropbox.com/s/ebj0hlb2n1s9lro/Screenshot%202018-10-24%2017.20.46.png?dl=1">
+  - 그림으로 보자면 다음과 같다. 결국 zero-padding plane이 있고 그 plane을 이전 unit의 output이랑 concat 하는 것이라 보면 된다. (a)와 (b)는 동일하다 볼 수 있다. 위 식에서 Dk-1이상 Dk이하는 plain unit처럼 식이 써져있는것도 이 이유다. 즉 mixture of residual net and plain net이 되는 것이다.
+  <img src="https://www.dropbox.com/s/cletnha9n1tkemy/Screenshot%202018-10-24%2017.44.03.png?dl=1">
+  - 여러가지 shortcut connection 방법에 따른 성능은 다음과 같다. zero padding이 제일 좋다. 생각보다 방법마다 차이가 많이 난다.
+  <img src="https://www.dropbox.com/s/gojtryzv82pvexb/Screenshot%202018-10-24%2017.27.00.png?dl=1">
+
+- A New Building block
+  - Building Block을 만드는 방법에서도 성능 개선의 여지가 충분히 있다. 
+  - ReLU를 building block에 포함시키는 것은 non-linearity 때문에 꼭 필요하다.
+  - addition 이후에 ReLU를 사용하는 것은 성능 저하를 가져온다. (이후에 shortcut connection이 모두 non-negative가 된다.)
+  - 따라서 Pre-activation을 사용한다. 1000 layer 이상이 되어도 overfitting이 안 일어난다.
+  - ReLU가 너무 많으면 성능이 안좋아지는 경향이 있다. 따라서 Residual unit 안에서 첫번째 ReLU를 생략한다. 다음 그림의 (b)와 (d)에 해당
+  - 두 번째 ReLU를 생략하면 두 개의 convolution 사이에 non-linearity가 없어서 representation power가 약해진다.
+  - BN의 역할은 activation을 normalize해서 수렴을 빠르게 만들어주는 것
+  - 마지막에 BN을 붙이면 각 residual unit이 유용한지 아닌지를 판단해줄 수 있음
+  - 실험결과는 그림 밑의 표와 같음. (d) = (b) + (c)이므로 (d)가 가장 좋은 성능을 보여줌
+  <img src="https://www.dropbox.com/s/lv6lvozm1uzgm4h/Screenshot%202018-10-24%2021.15.39.png?dl=1">
+  <img src="https://www.dropbox.com/s/44jj5jllnuafs4c/Screenshot%202018-10-24%2021.22.00.png?dl=1">
+
+</br>
+
+### 4. Experiment Results
+- CIFAR 데이터에 대해서는 standard data augmentation 적용 (horizontal flipping, translation by 4 pixels)
+- SGD 사용. momentum = 0.9, 처음에는 lr=0.1, 150와 225 epochs 에서 0.1배씩, weight decay=0.0001
+- batch size = 128
+- CIFAR-10에서 3.31 % test error를 기록
+<img src="https://www.dropbox.com/s/3y88bc0n16mmisf/Screenshot%202018-10-24%2021.24.21.png?dl=1">
+
+- additive vs multiplicative pyramidnet
+  - additive가 multiplicative에 비해 input side의 layer가 큰 경향이 있는데 그게 더 성능이 좋음.
+  <img src="https://www.dropbox.com/s/vsvjwn6fw8amhf7/Screenshot%202018-10-24%2021.34.18.png?dl=1">
