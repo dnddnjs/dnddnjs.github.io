@@ -77,9 +77,10 @@ like ensembles of relatively shallow networks" 논문에 따르면 ResNet은 여
   - pyramidnet에서는 identity mapping을 사용할 수 없다. pyramidnet에서 사용하는 zero-padded identity mapping shortcut은 다음과 같다. k는 residual unit의 index, n는 group의 index, l은 feature map의 index이다. 매 unit 마다 feature map dimension이 늘어난다. 이전 unit의 feature map dimension은 Dk-1이고 현재 unit의 feature map dimension이 Dk라고 하면 (Dk)-(Dk-1) 만큼의 dimension을 zero-padding으로 채우는 것이다. 
   <img src="https://www.dropbox.com/s/ebj0hlb2n1s9lro/Screenshot%202018-10-24%2017.20.46.png?dl=1">
   - 그림으로 보자면 다음과 같다. 결국 zero-padding plane이 있고 그 plane을 이전 unit의 output이랑 concat 하는 것이라 보면 된다. (a)와 (b)는 동일하다 볼 수 있다. 위 식에서 Dk-1이상 Dk이하는 plain unit처럼 식이 써져있는것도 이 이유다. 즉 mixture of residual net and plain net이 되는 것이다.
-  <img src="https://www.dropbox.com/s/cletnha9n1tkemy/Screenshot%202018-10-24%2017.44.03.png?dl=1">
-  - 여러가지 shortcut connection 방법에 따른 성능은 다음과 같다. zero padding이 제일 좋다. 생각보다 방법마다 차이가 많이 난다.
   <img src="https://www.dropbox.com/s/gojtryzv82pvexb/Screenshot%202018-10-24%2017.27.00.png?dl=1">
+  - 여러가지 shortcut connection 방법에 따른 성능은 다음과 같다. zero padding이 제일 좋다. 생각보다 방법마다 차이가 많이 난다.
+  <img src="https://www.dropbox.com/s/cletnha9n1tkemy/Screenshot%202018-10-24%2017.44.03.png?dl=1">
+  
 
 - A New Building block
   - Building Block을 만드는 방법에서도 성능 개선의 여지가 충분히 있다. 
@@ -94,7 +95,7 @@ like ensembles of relatively shallow networks" 논문에 따르면 ResNet은 여
   <img src="https://www.dropbox.com/s/lv6lvozm1uzgm4h/Screenshot%202018-10-24%2021.15.39.png?dl=1">
   <img src="https://www.dropbox.com/s/44jj5jllnuafs4c/Screenshot%202018-10-24%2021.22.00.png?dl=1">
 
-</br>
+<br/>
 
 ### 4. Experiment Results
 - CIFAR 데이터에 대해서는 standard data augmentation 적용 (horizontal flipping, translation by 4 pixels)
