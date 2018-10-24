@@ -16,7 +16,7 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 
 ## 논문 제목: Deep Pyramidal Residual Networks [2017 Sep]
 
-<img src="https://www.dropbox.com/s/zd09fkmeu47wq3q/Screenshot%202018-10-19%2015.13.31.png?dl=1">
+<img src="https://www.dropbox.com/s/ieukhhznpdtqqoc/Screenshot%202018-10-24%2016.14.35.png?dl=1">
 - 논문 저자: YDongyoon Han, Jiwhan Kim, Junmo Kim
 - 논문 링크: [https://arxiv.org/pdf/1610.02915.pdf](https://arxiv.org/pdf/1610.02915.pdf)
 - 저자 코드: [https://github.com/jhkim89/PyramidNet](https://github.com/jhkim89/PyramidNet)
@@ -50,5 +50,29 @@ like ensembles of relatively shallow networks" 논문에 따르면 ResNet은 여
 - 기존 CIFAR 데이터셋에서의 ResNet 모델의 depth는 다음과 같다. k는 residual unit이 있는 group을 뜻한다.
 <img src="https://www.dropbox.com/s/vnniq1ukyeqms2n/Screenshot%202018-10-24%2015.42.25.png?dl=1">
 
-- 우리는 다음과 같이 feature map dimension을 늘릴 것이다.
+- 우리는 두 가지 방법으로 feature map dimension을 늘릴 것이다.
+- 우선 더하는 방식은 다음과 같다.
 <img src="https://www.dropbox.com/s/kz410nnpp8qma2b/Screenshot%202018-10-24%2016.08.30.png?dl=1">
+- 곱하는 방식은 다음과 같다.
+<img src="https://www.dropbox.com/s/cpghqys45lw2lax/Screenshot%202018-10-24%2016.13.27.png?dl=1">
+- 그림으로 보면 다음과 같다. 
+<img src="https://www.dropbox.com/s/ohfl1n8p3icjli3/Screenshot%202018-10-24%2016.13.57.png?dl=1">
+- residual unit안에서의 building block 구조가 여러개 있는데 다음 그림과 같다. 이제 이 그림은 익숙할텐데 이 논문에서는 그 중에 (d)를 사용한다. 자세한 건 다음 파트에서.
+<img src="https://www.dropbox.com/s/5qv21enadkxwefq/Screenshot%202018-10-24%2016.38.13.png?dl=1">
+- shortcut connection도 고민이 필요하다. Pyramid Net의 경우 모든 unit에서 depth가 늘어나기 때문에 identity mapping은 할 수 없다. 따라서 1x1 conv를 쓰거나 zero-padding을 써야한다. 1x1 conv의 경우 너무 많이 쓰면 결과가 안좋아지기 때문에 이 논문에서는 zero-padding 방법을 사용하기로 했다. 자세한 건 다음 파트에서.
+
+<br/>
+
+### 3. Discussion
+- 이 파트에서는 architecture에 대한 심화연구를 소개한다. 
+- Effect of PyramidNet
+  - pre-activation resnet이랑 pyramidnet 비교
+  - training error, test error를 비교. 110 layer resnet 사용. pyramidnet은 alpha=48을 사용. 두 네트워크는 parameter 수가 동일.
+  <img src="https://www.dropbox.com/s/en3sz3dprla5hjy/Screenshot%202018-10-24%2017.11.07.png?dl=1">
+  - 앙상블 효과를 비교하기 위해 residual unit을 지워보는 실험을 함. 실험 결과는 다음과 같음. resnet 같은 경우 파란 수직선이 있는 downsampling 부분에서 error가 갑자기 튀는 것을 볼 수 있다. 하지만 pyramidnet의 경우 downsampling 부분에서도 error의 변화는 미비하다. 이것을 통해 기존 resnet 보다 pyramidnet의 앙상블 효과가 더 뛰어남을 볼 수 있다. 
+  <img src="https://www.dropbox.com/s/68osemsp4orh1y6/Screenshot%202018-10-24%2017.15.05.png?dl=1">
+
+- Zero-padded shorcut connection
+  - resnet과 pre-activation resnet에서는 다양한 타입의 shortcut을 연구함. 이전 연구에 따르면 identity mapping이 다른 형태보다 파라메터를 가지지 않는다는 장점이 있어서 더 낫다. 파라메터가 더 적으면 오버피팅될 수 있는 가능성이 더 적기 때문이다. 또한 gradient를 그대로 흘려보낼 수 있다.
+  - pyramidnet에서는 identity mapping을 사용할 수 없다. pyramidnet에서 사용하는 zero-padded identity mapping shortcut은 다음과 같다. 
+  <img src="https://www.dropbox.com/s/ebj0hlb2n1s9lro/Screenshot%202018-10-24%2017.20.46.png?dl=1">
