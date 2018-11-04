@@ -4,7 +4,7 @@ title: Coding
 slug: coding
 menu: true
 submenu: true
-order: 2
+order: 3
 description: >
   코딩에 관련된 지식
 ---
