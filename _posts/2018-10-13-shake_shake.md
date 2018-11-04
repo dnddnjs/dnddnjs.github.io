@@ -2,7 +2,7 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 4: Shake-shake"
 subtitle: "Shake-Shake regularization"
-categories: paper
+categories: cifar10
 tags: dl
 comments: true
 ---

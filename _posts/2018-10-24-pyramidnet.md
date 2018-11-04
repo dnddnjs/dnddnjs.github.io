@@ -2,7 +2,7 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 5-1: PyramidNet"
 subtitle: "Deep Pyramidal Residual Networks"
-categories: paper
+categories: cifar10
 tags: dl
 comments: true
 ---

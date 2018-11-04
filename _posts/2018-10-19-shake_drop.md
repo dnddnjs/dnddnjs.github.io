@@ -2,7 +2,7 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 5: Shake-Drop"
 subtitle: "SHAKEDROP REGULARIZATION"
-categories: paper
+categories: cifar10
 tags: dl
 comments: true
 ---
@@ -14,7 +14,7 @@ image recognition에서는 다양한 benchmark가 존재한다. 그 중에서 CI
 - [pytorch cifar10 github code](https://github.com/dnddnjs/pytorch-cifar10) 
 
 
-## 논문 제목: SHAKEDROP REGULARIZATION [2017 Feb]
+## 논문 제목: SHAKEDROP REGULARIZATION [2018 Feb]
 
 <img src="https://www.dropbox.com/s/zd09fkmeu47wq3q/Screenshot%202018-10-19%2015.13.31.png?dl=1">
 - 논문 저자: Yoshihiro Yamada, Masakazu Iwamura, Koichi Kise

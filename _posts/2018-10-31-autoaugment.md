@@ -2,7 +2,7 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 6: Auto-Augment"
 subtitle: "AutoAugment: Learning Augmentation Policies from Data"
-categories: paper
+categories: cifar10
 tags: dl
 comments: true
 ---
