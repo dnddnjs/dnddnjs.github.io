@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "CIFAR-10 정복 시리즈 5-1: PyramidNet"
+title: "CIFAR-10 정복 시리즈 6: PyramidNet"
 subtitle: "Deep Pyramidal Residual Networks"
 categories: cifar10
 tags: dl
@@ -11,16 +11,17 @@ comments: true
 CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에서 어떻게 성능을 높여왔는지 그 흐름을 알아본다. 또한 코드를 통해서 동작원리를 자세하게 깨닫고 실습해볼 것이다. 
 
 - CIFAR-10 정복하기 시리즈 목차(클릭해서 바로 이동하기)
-  - [CIFAR-10 정복 시리즈 0: 시작하기](https://dnddnjs.github.io/cifar10/2018/10/08/start_cifar10/)
-  - [CIFAR-10 정복 시리즈 1: ResNet](https://dnddnjs.github.io/cifar10/2018/10/09/resnet/)
-  - [CIFAR-10 정복 시리즈 2: DenseNet](https://dnddnjs.github.io/cifar10/2018/10/11/densenet/)
-  - [CIFAR-10 정복 시리즈 3: Wide ResNet](https://dnddnjs.github.io/cifar10/2018/10/12/wide_resnet/)
-  - [CIFAR-10 정복 시리즈 4: Shake-shake](https://dnddnjs.github.io/cifar10/2018/10/13/shake_shake/)
-  - [CIFAR-10 정복 시리즈 5: PyramidNet](https://dnddnjs.github.io/cifar10/2018/10/24/pyramidnet/)
-  - [CIFAR-10 정복 시리즈 6: Shake-Drop](https://dnddnjs.github.io/cifar10/2018/10/19/shake_drop/)
-  - [CIFAR-10 정복 시리즈 7: NAS](https://dnddnjs.github.io/cifar10/2018/11/04/nas/)
+  - [CIFAR-10 정복 시리즈 0: 시작하기](https://dnddnjs.github.io/cifar10/2018/10/07/start_cifar10/)
+  - [CIFAR-10 정복 시리즈 1: Batch-Norm](https://dnddnjs.github.io/cifar10/2018/10/08/batchnorm/)
+  - [CIFAR-10 정복 시리즈 2: ResNet](https://dnddnjs.github.io/cifar10/2018/10/09/resnet/)
+  - [CIFAR-10 정복 시리즈 3: DenseNet](https://dnddnjs.github.io/cifar10/2018/10/11/densenet/)
+  - [CIFAR-10 정복 시리즈 4: Wide ResNet](https://dnddnjs.github.io/cifar10/2018/10/12/wide_resnet/)
+  - [CIFAR-10 정복 시리즈 5: Shake-shake](https://dnddnjs.github.io/cifar10/2018/10/13/shake_shake/)
+  - [CIFAR-10 정복 시리즈 6: PyramidNet](https://dnddnjs.github.io/cifar10/2018/10/24/pyramidnet/)
+  - [CIFAR-10 정복 시리즈 7: Shake-Drop](https://dnddnjs.github.io/cifar10/2018/10/19/shake_drop/)
   - [CIFAR-10 정복 시리즈 8: NASNet](https://dnddnjs.github.io/cifar10/2018/11/03/nasnet/)
-  - [CIFAR-10 정복 시리즈 9: Auto-Augment](https://dnddnjs.github.io/cifar10/2018/10/31/autoaugment/)
+  - [CIFAR-10 정복 시리즈 9: ENAS](https://dnddnjs.github.io/cifar10/2018/11/03/enas/)
+  - [CIFAR-10 정복 시리즈 10: Auto-Augment](https://dnddnjs.github.io/cifar10/2018/11/05/autoaugment/)
 
 - 관련 코드 링크
   - [pytorch cifar10 github code](https://github.com/dnddnjs/pytorch-cifar10) 
