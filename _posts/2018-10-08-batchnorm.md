@@ -2,8 +2,8 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 1: Batch-Norm"
 subtitle: "Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift"
-categories: cifar10
-tags: dl
+categories: 
+tags:
 comments: true
 ---
 
