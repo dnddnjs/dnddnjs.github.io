@@ -25,13 +25,16 @@ CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에�
 ## CIFAR-10 정복 시리즈 2: PyramidNet
 이전 포스트에서는 ResNet에 대해서 알아봤다. ResNet이 등장한 2015년 이후로 ResNet 기반의 새로운 네트워크가 많이 나왔다. 이번 포스트에서는 ResNet 이후 모델 구조에 관한 논문 중에 대표적인 3개 논문을 살펴볼 것이다. **WideResNet**[^0]은 ResNet의 깊이가 깊어지면 학습이 어렵다는 점을 해결하고자 깊게 쌓는 것이 아니라 넓게 쌓는 방법을 제안했다. **DenseNet**[^1]은 ResNet의 shortcut connection을 주의깊게 보고 더 dense한 connection 방법을 제안했다. **PyramidNet**[^2]은 ResNet의 down sampling 부분에 주목했다. ResNet에서 donw sampling을 특정 layer에서 수행하는 것이 아니라 모든 layer에서 나눠서 하는 것이 PyramidNet의 아이디어이다. 자 이제 하나씩 살펴보자.
 
-1. [WideResNet](#WideResNet)
-2. [DenseNet](#DenseNet)
-3. [PyramidNet](#PyramidNet)
+1. [WideResNet](#wideresnet)
+2. [DenseNet](#densenet)
+3. [PyramidNet](#pyramidnet)
 
 <br>
 
+---
+
 ## WideResNet
+
 ResNet은 1000 layer 이상의 네트워크도 학습이 되도록 했다. 하지만 100 layer 대의 ResNet 보다 1000 layer 이상의 네트워크가 오히려 성능이 안좋아지는 문제가 생겼다. 물론 이전 포스트에서 Kaiming He의 후속 논문인 **Identity Mappings in Deep Residual Networks**[^3]에서 이 문제를 어느정도 해결했다는 것을 봤다. Wide ResNet은 이와 같은 activation 순서에 대한 연구를 통해 네트워크의 **depth**를 늘리는 것이 아닌 다른 방법을 제안하고 있다. 네트워크의 **width**를 키움으로서 네트워크의 성능을 올리는 것이다. 
 
 Wide ResNet 저자가 이러한 생각을 한 이유는 identity mapping에 대한 생각 때문이다. 논문에서는 Identity mapping이 ResNet의 강점인 동시에 약점이라고 주장한다. Identity mapping 즉 shortcut connection은 아무 파라메터가 없다. 따라서 gradient가 shortcut connection을 따라서 흐를 경우 네트워크는 아무것도 배우지 않을 가능성이 있다. 그 결과 깊은 ResNet의 layer 들 중에서 일부만 유용한 representation을 학습하거나 여러 layer들이 정보를 조금씩 나눠서 가지고 있을 수 있다. 
@@ -104,7 +107,10 @@ def forward(self, x):
 
 <br>
 
+---
+
 ## DenseNet
+
 WideResNet이 네트워크의 width에 초점을 맞췄다면 DenseNet은 ResNet의 **Shortcut connection**에 초점을 맞췄다. ResNet과 Highway network, ResDrop 모두 성능을 높이기 위해 앞쪽 layer에서 뒤쪽 layer로 가는 **shortcut connection**을 사용했다. 이 때 바로 전 layer의 출력만을 다음 layer로 보냈지만 DenseNet은 **이전의 많은 layer의 출력을 한꺼번에 받는다**. 상당히 간단한 아이디어로 다음 그림을 통해 이해할 수 있다. 다음 그림은 ResNet에서 conv1, conv2, conv3에 해당하는 DenseNet의 DenseBlock을 그림으로 그린 것이다. 기존의 Residual block이 $$x_l = H_l(x_{l-1}) + x_{l-1}$$이라고 한다면 DenseBlock에서 한 layer는 $$x_l = H_l([x_0, x_1, .... , x_{l-1}])$$ 이라고 표현할 수 있다. Residual block과의 차이점은 DenseBlock 내부에서 이전 layer의 입력을 모두 받는다는 것과 addition이 아닌 concatenation으로 입력을 합친다는 것이다. 
 
 <figure>
@@ -139,7 +145,10 @@ CIFAR에서 DenseNet은 3개의 Dense block을 사용한다. 그 이외에는 �
 
 <br>
 
+---
+
 ## PyramidNet
+
 PyramidNet은 ResNet의 down sampling에서 일어나는 급격한 width의 변화에 초점을 맞췄다. 일반적인 ResNet 구조의 네트워크들은 feature map size를 반으로 줄이면서 feature map channels는 2배로 늘린다. PyramidNet은 모든 layer에서 channel 수가 변하도록 해서 특정 layer에 집중되어있던 width의 변화를 전체 네트워크로 분산시켰다. 이러한 생각을 하게 된 것은 ResDrop의 연구결과 때문이다. 
 
 ResNet은 **"Residual networks behave like ensembles of relatively shallow networks"**[^6] 논문에서 언급한 것처럼 일종의 얕은 네트워크들의 앙상블처럼 행동한다. 따라서 ResDrop에서 특정 layer들을 없애도 전체 성능에 영향이 별로 없던 것이다. 하지만 down sample이 일어나는 layer를 없앴을 경우 다른 layer에 비해 큰 폭으로 성능 저하가 일어났다. 다음 그림이 ResNet의 특정 layer를 없앨 경우 성능이 어떻게 변하는지를 보여준다. 파란색 수직선이 down sample이 일어나는 layer이다. 왼쪽이 Pre-activation ResNet인데 down sample이 일어날 때 2% 정도 성능이 저하되는 것을 볼 수 있다. 오른쪽이 PyramidNet에서 같은 실험을 한 것인데 모든 layer에서 성능 저하가 거의 동일한 것을 볼 수 있다. 
@@ -314,6 +323,8 @@ PyramidNet을 학습한 그래프는 다음과 같다.
 <img src="https://www.dropbox.com/s/h4k8599m4i2ze01/Screenshot%202018-11-22%2000.16.06.png?dl=1">
 
 <br>
+
+---
 
 ### 참고문헌
 [^0]: https://arxiv.org/pdf/1605.07146.pdf
