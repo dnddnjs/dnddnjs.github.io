@@ -14,9 +14,8 @@ CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에�
   - [CIFAR-10 정복 시리즈 0: 시작하기](https://dnddnjs.github.io/cifar10/2018/10/07/start_cifar10/)
   - [CIFAR-10 정복 시리즈 1: ResNet](https://dnddnjs.github.io/cifar10/2018/10/09/resnet/)
   - [CIFAR-10 정복 시리즈 2: PyramidNet](https://dnddnjs.github.io/cifar10/2018/10/24/pyramidnet/)
-  - [CIFAR-10 정복 시리즈 3: Shake-shake](https://dnddnjs.github.io/cifar10/2018/10/13/shake_shake/)
-  - [CIFAR-10 정복 시리즈 4: Shake-Drop](https://dnddnjs.github.io/cifar10/2018/10/19/shake_drop/)
-  - [CIFAR-10 정복 시리즈 5: ENAS](https://dnddnjs.github.io/cifar10/2018/11/03/enas/)
+  - [CIFAR-10 정복 시리즈 3: Shake Regularizer](https://dnddnjs.github.io/cifar10/2018/10/13/shake_shake/)
+  - [CIFAR-10 정복 시리즈 4: ENAS](https://dnddnjs.github.io/cifar10/2018/11/03/enas/)
 
 - 관련 코드 링크
   - [pytorch cifar10 github code](https://github.com/dnddnjs/pytorch-cifar10) 
@@ -106,173 +105,213 @@ def forward(self, x):
 <br>
 
 ## DenseNet
+WideResNet이 네트워크의 width에 초점을 맞췄다면 DenseNet은 ResNet의 **Shortcut connection**에 초점을 맞췄다. ResNet과 Highway network, ResDrop 모두 성능을 높이기 위해 앞쪽 layer에서 뒤쪽 layer로 가는 **shortcut connection**을 사용했다. 이 때 바로 전 layer의 출력만을 다음 layer로 보냈지만 DenseNet은 **이전의 많은 layer의 출력을 한꺼번에 받는다**. 상당히 간단한 아이디어로 다음 그림을 통해 이해할 수 있다. 다음 그림은 ResNet에서 conv1, conv2, conv3에 해당하는 DenseNet의 DenseBlock을 그림으로 그린 것이다. 기존의 Residual block이 $$x_l = H_l(x_{l-1}) + x_{l-1}$$이라고 한다면 DenseBlock에서 한 layer는 $$x_l = H_l([x_0, x_1, .... , x_{l-1}])$$ 이라고 표현할 수 있다. Residual block과의 차이점은 DenseBlock 내부에서 이전 layer의 입력을 모두 받는다는 것과 addition이 아닌 concatenation으로 입력을 합친다는 것이다. 
 
-### Abstract
-- 단순히 말하자면 densenet은 resnet을 보다 깊게 쌓는 효과를 skip connection을 더 많이 쓰는 방법으로 얻는 것이다. 조금 더 나은 성능에 더 적은 parameter, 더 적은 computation이 필요하다.
-- 다음 그림을 이해하면 densenet은 절반은 이해한 것이다. 각 "block"은 모든 앞의 block의 출력을 합해서 입력으로 받는다(더하기 아니고 concat). 그리고 그 block의 출력은 역시 그 이후의 모든 block의 입력이 된다.
-- 보면 간단하지만 실제로 학습시켜서 resnet보다 더 좋은 성능을 내기는 어려웠을 것이다. 어떻게 했을까. 한 번 살펴보자.
+<figure>
+  <img src="https://www.dropbox.com/s/qlw9b3vad5osrqa/Screenshot%202018-10-11%2016.16.10.png?dl=1" width="500px">
+  <figcaption>
+    https://arxiv.org/pdf/1608.06993.pdf
+  </figcaption>
+</figure>
 
-<img src="https://www.dropbox.com/s/qlw9b3vad5osrqa/Screenshot%202018-10-11%2016.16.10.png?dl=1">
+<br>
+DenseNet의 전체 구조는 다음과 같다. 입력이 들어오면 convolution을 하나 거친 이후에 DenseBlock을 통과한다. Dense Block에서는 이전 Residual block과는 달리 down sampling이 일어나지 않는다. 대신 **transition layer**를 두어서 여기서 down sampling을 한다. Down sampling으로는 average pooling을 사용한다. Transition layer는 BN + conv1x1 + average pooling으로 구성되어있다. DenseBlock 내부에서는 pre-activation을 사용한다. 즉 layer 하나의 연산은 bn-relu-conv3x3-bn-relu-conv3x3가 된다. 
 
-<br/>
+<figure>
+  <img src="https://www.dropbox.com/s/3y5idt67bea7jid/Screenshot%202018-10-11%2017.00.25.png?dl=1">
+  <figcaption>
+    https://arxiv.org/pdf/1608.06993.pdf
+  </figcaption>
+</figure>
 
-### Introduction
-- Resnet, Highway Networks, Stochastic depth(Resnet), FractalNets 모두 동일한 이야기를 하고 있다. 성능을 높이기 위해 앞쪽 layer에서 뒤 쪽 layer로 가는 short path를 써라. (그런거 보면 resnet의 아이디어는 간단하고 강력하다. 심지어 재현도 잘된다. 이런 아이디어는 사랑해야한다)
-- l 번째 layer는 l개의 입력이 있고 그 layer의 출력도 L-l 개의 layer를 통과한다. 이렇게 하면 L(L+1) / 2의 connection이 생긴다. connection이 dense하게 많기 때문에 densenet이라 하겠다. 
-- dense한 connection이 왜 좋을까? 반복되는 feature map 학습안하고 더 적은 파라메터로 네트워크를 학습할 수 있기 때문이라고 논문은 말한다.
-- resnet의 변형체들을 보면 resnet layer 중에 많은 layer가 성능에 별 영향을 안주고 심지어 dropout 될 수도 있다고 한다. 이런 성향은 RNN과도 비슷하다. 대신 하나 하나의 layer가 독립적으로 parameter를 가지기 때문에 전체 크기가 큰 것이다.
-- densenet은 특정 layer로 들어온 여러 information을 똭 분리해서 미분할 수 있다. 
-- densenet의 최종 classifier는 모든 feature map을 보고 판단하게 된다.
-- densenet은 기존 접근과는 다르게 feature의 재사용에 초점을 뒀다.
-- 그러니까 이 모든 설명은 위 그림을 설명하는 것이다.
+<br>
+DenseNet에서는 한 가지 유의해야할 점이 있다. ResNet에서는 이전 입력과 합칠 때 addition을 사용하기 때문에 feature map의 channel 수는 변하지 않는다. 하지만 DenseNet에서는 이전 입력과 모두 **concatenation** 을 하기 때문에 feature map의 channel 수가 점점 늘어난다. 만일 DenseBlock 안에서 l번째 layer라고 한다면 이 layer의 입력은 $$k_0 + k \times (l-1)$$의 channel 수를 가진다. $$k_0$$는 DenseBlock의 입력 channel을 의미하고 k는 각 convolution의 channel을 의미한다. Layer의 입력으로는 이전 입력이 모두 concatenated되서 들어오기 때문에 channel 수가 계속 달라지지만 layer 내부에서는 k의 channel로 유지되는 것이다. DenseNet의 특성 상 layer의 width는 상당히 작게 유지될 수 있다. 논문에서는 12, 24, 40 정도를 k 값으로 사용한다. 
 
-<br/>
+CIFAR에서 DenseNet은 3개의 Dense block을 사용한다. 그 이외에는 기존 ResNet 구조와 거의 동일하다. DenseNet의 성능은 다음과 같다. 표에서 C10+는 augmentation 한 것을 의미한다. DenseNet (k=12)를 보면 네트워크의 깊이는 40이며 파라메터 수는 1.0M이다. Error rate는 5.24 %인데 동일한 성능의 WideResNet과 비교하면 2배정도 파라메터가 적다. DenseNet 저자는 이렇게 성능이 향상된 이유로 **Deep supervision**의 가능성을 제시했다. 이전 layer의 출력이 뒤로 모두 전달이 되는데 결국 loss function이 모든 layer에 적용될 수 있다. 이는 각 layer마다 supervision의 영향력을 직접적으로 걸어주는 역할을 한다고 해석할 수 있다. 
 
-### DenseNets
-- H()는 convolution + BN + activation + pooling을 포함한 함수. x는 해당 layer의 output
-- ResNet은 다음과 같이 표현 가능함.
-<img src="https://www.dropbox.com/s/kamnx4362ntgrsn/Screenshot%202018-10-11%2016.41.56.png?dl=1">
-
-- identity function과 H output이 summation으로 합쳐졌기 때문에 gradient의 flow가 원활하지 못하다.
-- DenseNet은 다음과 같다. [x0, x1, ...]은 concatenation 이다.
-<img src="https://www.dropbox.com/s/nojzgv0hg5kg61u/Screenshot%202018-10-11%2016.44.59.png?dl=1">
-
-- Densenet 구조는 dense block을 여러개 합친 것이다. 이는 pooling을 통해 feature map 사이즈를 줄이기 위한 것이다. block 사이는 transition layer라고 부르며 BN + 1x1 conv + 2x2 average pooling 이다. 
-
-<img src="https://www.dropbox.com/s/3y5idt67bea7jid/Screenshot%202018-10-11%2017.00.25.png?dl=1">
-
-- feature map의 depth는 k=12 정도로 사용한다. l번째 layer의 input은 k0 + kx(l-1)의 depth를 가진다. k는 growth rate라고 부른다. 
-- 이렇게 layer의 depth가 적어도 학습이 잘되는데 그건 collective knowledge 때문이라고 할 수 있다.
-- 각 feature map은 global state라고 볼 수도 있는데 각 layer에서는 이 정보에 직접적으로 접근할 수 있다.
-- bottleneck layer: BN-ReLU-Conv(1×1)-BN-ReLU-Conv(3×3)
-- 1x1 layer는 4k의 feature map을 만든다. 이거 사용하면 DenseNet-B
-- transition layer에서 feature map 사이즈를 줄인다. 이거 사용하면 DenseNet-C
-- bottleneck + compression 둘 다 사용하면 DenseNet-BC
-- 다음은 구체적인 DenseNet 구조
-
-<img src="https://www.dropbox.com/s/kvq5eypxxzw0l71/Screenshot%202018-10-11%2017.09.19.png?dl=1">
-
-- ImageNet을 제외하고 모두 3개의 dense block을 사용
-- input을 16 channel로 만듬
-- transition layer에서는 2x2 average pooling으로 압축
-- 각 dense block에서 feature map size: [32x32, 16x16, 8x8]
-
-<br/>
-
-### Experiment
-- cifar10 에서의 성능 비교. 학습은 300 epoch. 150에서 lr을 0.1, 225에서 한 번 더.
-<img src="https://www.dropbox.com/s/05baxltjfhiqqux/Screenshot%202018-10-11%2017.16.51.png?dl=1">
-
-- DenseNet-BC(L=190, k=40)이 최고 성능 (3.46 %)
-- C10+는 augmentation 한 것을 의미
-- resnet과 비교해보면 비슷한 성능에서 parameter와 계산량이 확실히 적음을 알 수 있음.
-
-<img src="https://www.dropbox.com/s/ss0fkd96l48b9jw/Screenshot%202018-10-11%2017.23.08.png?dl=1">
-
-- parameter가 더 적으므로 overfitting이 되기 더 어려움
-- 왜 더 잘 학습되는지에 대한 논문의 답: One explanation for the improved
-accuracy of dense convolutional networks may be
-that individual layers receive additional supervision from
-the loss function through the shorter connections. One can
-interpret DenseNets to perform a kind of “deep supervision”.
-The benefits of deep supervision have previously
-been shown in deeply-supervised nets (DSN; [20]), which
-have classifiers attached to every hidden layer, enforcing the
-intermediate layers to learn discriminative features.
+<figure>
+  <img src="https://www.dropbox.com/s/05baxltjfhiqqux/Screenshot%202018-10-11%2017.16.51.png?dl=1" width="500px">
+  <figcaption>
+    https://arxiv.org/pdf/1608.06993.pdf
+  </figcaption>
+</figure>
 
 
 <br>
 
 ## PyramidNet
+PyramidNet은 ResNet의 down sampling에서 일어나는 급격한 width의 변화에 초점을 맞췄다. 일반적인 ResNet 구조의 네트워크들은 feature map size를 반으로 줄이면서 feature map channels는 2배로 늘린다. PyramidNet은 모든 layer에서 channel 수가 변하도록 해서 특정 layer에 집중되어있던 width의 변화를 전체 네트워크로 분산시켰다. 이러한 생각을 하게 된 것은 ResDrop의 연구결과 때문이다. 
+
+ResNet은 **"Residual networks behave like ensembles of relatively shallow networks"**[^6] 논문에서 언급한 것처럼 일종의 얕은 네트워크들의 앙상블처럼 행동한다. 따라서 ResDrop에서 특정 layer들을 없애도 전체 성능에 영향이 별로 없던 것이다. 하지만 down sample이 일어나는 layer를 없앴을 경우 다른 layer에 비해 큰 폭으로 성능 저하가 일어났다. 다음 그림이 ResNet의 특정 layer를 없앨 경우 성능이 어떻게 변하는지를 보여준다. 파란색 수직선이 down sample이 일어나는 layer이다. 왼쪽이 Pre-activation ResNet인데 down sample이 일어날 때 2% 정도 성능이 저하되는 것을 볼 수 있다. 오른쪽이 PyramidNet에서 같은 실험을 한 것인데 모든 layer에서 성능 저하가 거의 동일한 것을 볼 수 있다. 
+
+<figure>
+  <img src="https://www.dropbox.com/s/mjlw97g7e1cte5i/Screenshot%202018-11-21%2023.33.55.png?dl=1">
+  <figcaption>
+      https://arxiv.org/pdf/1610.02915.pdf
+  </figcaption>
+</figure>
 
 <br>
 
+PyramidNet에서 residual block은 다음 그림에서 (d)나 (e)와 같다. 기존에는 convolution filter의 수가 down sample이 아닌 곳에서는 모두 같았다면 PyramidNet에서는 모든 residual block에서 convolution filter 수가 증가한다.
 
-### Abstract
-- ResNet 같은 경우 feature map size를 줄이면서 feature dimension은 급격하게 늘린다
-- 이 논문에서는 feature map dimension을 점자 늘리는 방식을 소개한다. 
-- 이 방법은 generalization ability를 늘리는 효과가 있다.
-- CIFAR-10, CIFAR-100, ImageNet에서 테스트함
+<figure>
+  <img src="https://www.dropbox.com/s/fm7yui43ojdt5rt/Screenshot%202018-10-24%2015.36.15.png?dl=1"> 
+  <figcaption>
+      https://arxiv.org/pdf/1610.02915.pdf
+  </figcaption>
+</figure>
 
-<br/>
+<br>
 
-### Introduction
-- "Residual networks behave
-like ensembles of relatively shallow networks" 논문에 따르면 ResNet은 여러 Shallow Network의 ensemble 효과가 있다고 함
-- 실제로 ResNet에서 특정 residual unit을 지우면 성능차이가 별로 없는데 이건 앙상블에서 모델 하나를 빼는 것과 같다.
-- 하지만 VGG에서는 layer 하나를 빼면 성능 저하가 심하게 일어난다. 
-- ResNet에서도 downsampling이 일어나는 block을 지우면 성능저하가 일어나는데 stochastic depth 방법을 사용하면 성능저하가 일어나지 않는다. 
-- 따라서 이 논문에서는 bottleneck에 걸려있는 짐을 여러 layer로 분산시키려한다. 즉 feature map depth의 increase가 bottleneck에서만 일어나는 것이 아니고 모든 layer에서 분산되어 일어나도록 하는 것이다.
-- 이렇게 점차 depth가 늘어가는 모양이 pyramid와 같아서 pyramidal residual network라고 부름
-- 다음 그림을 보면 바로 이해할 수 있음. 그림에서 넓어져가는 모양은 depth를 뜻한다.
+PyramidNet에서 layer의 width를 늘리는 방법에는 두 가지가 있다. (1) additive 방식으로 전체 layer 동안 얼마나 width를 늘릴지 $$\alpha$$를 정한 다음에 이전 width에 비해서 $$\alpha / N$$만큼 늘리는 것이다. (2) multiplicative 방식으로 지수배로 늘리는 방식이다. 다음 그림에서 가운데가 multiplicative 방식이며 오른쪽이 additive 방식이다. 성능은 additive 방식이 좋은 편인데 초기 layer 들의 width가 multiplicative 방식보다 더 큰 경향이 있기 때문이다. 
 
-<img src="https://www.dropbox.com/s/fm7yui43ojdt5rt/Screenshot%202018-10-24%2015.36.15.png?dl=1"> 
+<figure>
+  <img src="https://www.dropbox.com/s/ehjxn6g7lyjhxd9/Screenshot%202018-11-21%2023.45.57.png?dl=1">
+  <figcaption>
+      https://arxiv.org/pdf/1610.02915.pdf
+  </figcaption>
+</figure>
 
-<br/>
+<br>
 
-### 2. Network Architecture
-- 보통 딥러닝 모델 구조에서는 feature map size가 줄어들 때 feature map depth를 큰 폭으로 늘리는 방법을 사용
-- 기존 CIFAR 데이터셋에서의 ResNet 모델의 depth는 다음과 같다. k는 residual unit이 있는 group을 뜻한다.
-<img src="https://www.dropbox.com/s/vnniq1ukyeqms2n/Screenshot%202018-10-24%2015.42.25.png?dl=1">
+PyramidNet에서는 residual block 내부 구조가 Pre-activation ResNet과 좀 다르다. Pre-activation ResNet의 block 내부 구조 자체도 개선의 여지가 있다고 생각했기 때문에 논문에서 여러 구조로 실험을 해봤다. Residual block 안에 ReLU가 너무 많으면 성능이 안좋아지는 경향이 있다. 따라서 residual block 안에서 첫번째 ReLU를 생략한다. 다음 그림의 (b)와 (d)에 해당에 해당한다. 하지만 첫번째 ReLU를 생략하면 두 개의 convolution 사이에 non-linearity가 없어서 representation power가 약해진다. 따라서 Batch Normalization layer를 하나 더 추가해주는 것이 좋다. 따라서 PyramidNet에서는 (d)를 Residual block의 구조로 사용한다. 
 
-- 우리는 두 가지 방법으로 feature map dimension을 늘릴 것이다.
-- 우선 더하는 방식은 다음과 같다.
-<img src="https://www.dropbox.com/s/kz410nnpp8qma2b/Screenshot%202018-10-24%2016.08.30.png?dl=1">
-- 곱하는 방식은 다음과 같다.
-<img src="https://www.dropbox.com/s/cpghqys45lw2lax/Screenshot%202018-10-24%2016.13.27.png?dl=1">
-- 그림으로 보면 다음과 같다. 
-<img src="https://www.dropbox.com/s/ohfl1n8p3icjli3/Screenshot%202018-10-24%2016.13.57.png?dl=1">
-- residual unit안에서의 building block 구조가 여러개 있는데 다음 그림과 같다. 이제 이 그림은 익숙할텐데 이 논문에서는 그 중에 (d)를 사용한다. 자세한 건 다음 파트에서.
-<img src="https://www.dropbox.com/s/5qv21enadkxwefq/Screenshot%202018-10-24%2016.38.13.png?dl=1">
-- shortcut connection도 고민이 필요하다. Pyramid Net의 경우 모든 unit에서 depth가 늘어나기 때문에 identity mapping은 할 수 없다. 따라서 1x1 conv를 쓰거나 zero-padding을 써야한다. 1x1 conv의 경우 너무 많이 쓰면 결과가 안좋아지기 때문에 이 논문에서는 zero-padding 방법을 사용하기로 했다. 자세한 건 다음 파트에서.
-
-<br/>
-
-### 3. Discussion
-- 이 파트에서는 architecture에 대한 심화연구를 소개한다. 
-- Effect of PyramidNet
-  - pre-activation resnet이랑 pyramidnet 비교
-  - training error, test error를 비교. 110 layer resnet 사용. pyramidnet은 alpha=48을 사용. 두 네트워크는 parameter 수가 동일.
-  <img src="https://www.dropbox.com/s/en3sz3dprla5hjy/Screenshot%202018-10-24%2017.11.07.png?dl=1">
-  - 앙상블 효과를 비교하기 위해 residual unit을 지워보는 실험을 함. 실험 결과는 다음과 같음. resnet 같은 경우 파란 수직선이 있는 downsampling 부분에서 error가 갑자기 튀는 것을 볼 수 있다. 하지만 pyramidnet의 경우 downsampling 부분에서도 error의 변화는 미비하다. 이것을 통해 기존 resnet 보다 pyramidnet의 앙상블 효과가 더 뛰어남을 볼 수 있다. 
-  <img src="https://www.dropbox.com/s/68osemsp4orh1y6/Screenshot%202018-10-24%2017.15.05.png?dl=1">
-
-- Zero-padded shorcut connection
-  - resnet과 pre-activation resnet에서는 다양한 타입의 shortcut을 연구함. 이전 연구에 따르면 identity mapping이 다른 형태보다 파라메터를 가지지 않는다는 장점이 있어서 더 낫다. 파라메터가 더 적으면 오버피팅될 수 있는 가능성이 더 적기 때문이다. 또한 gradient를 그대로 흘려보낼 수 있다.
-  - pyramidnet에서는 identity mapping을 사용할 수 없다. pyramidnet에서 사용하는 zero-padded identity mapping shortcut은 다음과 같다. k는 residual unit의 index, n는 group의 index, l은 feature map의 index이다. 매 unit 마다 feature map dimension이 늘어난다. 이전 unit의 feature map dimension은 Dk-1이고 현재 unit의 feature map dimension이 Dk라고 하면 (Dk)-(Dk-1) 만큼의 dimension을 zero-padding으로 채우는 것이다. 
-  <img src="https://www.dropbox.com/s/ebj0hlb2n1s9lro/Screenshot%202018-10-24%2017.20.46.png?dl=1">
-  - 그림으로 보자면 다음과 같다. 결국 zero-padding plane이 있고 그 plane을 이전 unit의 output이랑 concat 하는 것이라 보면 된다. (a)와 (b)는 동일하다 볼 수 있다. 위 식에서 Dk-1이상 Dk이하는 plain unit처럼 식이 써져있는것도 이 이유다. 즉 mixture of residual net and plain net이 되는 것이다.
-  <img src="https://www.dropbox.com/s/gojtryzv82pvexb/Screenshot%202018-10-24%2017.27.00.png?dl=1">
-  - 여러가지 shortcut connection 방법에 따른 성능은 다음과 같다. zero padding이 제일 좋다. 생각보다 방법마다 차이가 많이 난다.
-  <img src="https://www.dropbox.com/s/cletnha9n1tkemy/Screenshot%202018-10-24%2017.44.03.png?dl=1">
-  
-
-- A New Building block
-  - Building Block을 만드는 방법에서도 성능 개선의 여지가 충분히 있다. 
-  - ReLU를 building block에 포함시키는 것은 non-linearity 때문에 꼭 필요하다.
-  - addition 이후에 ReLU를 사용하는 것은 성능 저하를 가져온다. (이후에 shortcut connection이 모두 non-negative가 된다.)
-  - 따라서 Pre-activation을 사용한다. 1000 layer 이상이 되어도 overfitting이 안 일어난다.
-  - ReLU가 너무 많으면 성능이 안좋아지는 경향이 있다. 따라서 Residual unit 안에서 첫번째 ReLU를 생략한다. 다음 그림의 (b)와 (d)에 해당
-  - 두 번째 ReLU를 생략하면 두 개의 convolution 사이에 non-linearity가 없어서 representation power가 약해진다.
-  - BN의 역할은 activation을 normalize해서 수렴을 빠르게 만들어주는 것
-  - 마지막에 BN을 붙이면 각 residual unit이 유용한지 아닌지를 판단해줄 수 있음
-  - 실험결과는 그림 밑의 표와 같음. (d) = (b) + (c)이므로 (d)가 가장 좋은 성능을 보여줌
+<figure>
   <img src="https://www.dropbox.com/s/lv6lvozm1uzgm4h/Screenshot%202018-10-24%2021.15.39.png?dl=1">
-  <img src="https://www.dropbox.com/s/44jj5jllnuafs4c/Screenshot%202018-10-24%2021.22.00.png?dl=1">
+  <figcaption>
+      https://arxiv.org/pdf/1610.02915.pdf
+  </figcaption>
+</figure>
+
+<br>
+
+모든 layer에서 width의 변화가 있기 때문에 shortcut connection도 단순히 identity mapping이 될 수 없다. Width가 변하는 경우는 1x1 convolution을 쓰거나 zero-padding을 써야한다. 모든 layer에 1x1 convolution을 shortcut connection으로 사용하면 parameter의 수 증가의 문제도 있고 적용했을 때 결과가 별로 좋지 않다. 따라서 PyramidNet에서는 zero-padding 방법을 사용한다. CIFAR 데이터셋에 적용했던 ResNet 또한 down sampling이 일어날 때 zero-padding을 사용했던 것을 생각하면 동일한 방법임을 알 수 있다. 다음 표는 여러가지 shortcut connection 방식을 비교한 것이다. Projection이 1x1 convolution을 의미하는데 모두 projection을 한 것보다 zero-padding만 한 것이 2% 이상 성능이 좋다. 
+
+<figure>
+  <img src="https://www.dropbox.com/s/j5evvkrjmonyfcl/Screenshot%202018-11-21%2023.58.57.png?dl=1">
+  <figcaption>
+      https://arxiv.org/pdf/1610.02915.pdf
+  </figcaption>
+</figure>
 
 <br/>
 
-### 4. Experiment Results
-- CIFAR 데이터에 대해서는 standard data augmentation 적용 (horizontal flipping, translation by 4 pixels)
-- SGD 사용. momentum = 0.9, 처음에는 lr=0.1, 150와 225 epochs 에서 0.1배씩, weight decay=0.0001
-- batch size = 128
-- CIFAR-10에서 3.31 % test error를 기록
-<img src="https://www.dropbox.com/s/3y88bc0n16mmisf/Screenshot%202018-10-24%2021.24.21.png?dl=1">
+다음은 PyramidNet의 학습 결과표이다. PyramidNet은 CIFAR-10에서 최대 3.31 %의 error rate를 달성한 것을 볼 수 있다. PyramidNet의 학습은 ResNet 학습과 거의 동일하다. Augmentation은 동일하고 SGD with momentum으로 네트워크를 업데이트했다. SGD의 처음 learning rate는 0.1로 시작해서 150 epoch에서 0.01로 225 epoch에서 0.001로 감소시켰다. 
 
-- additive vs multiplicative pyramidnet
-  - additive가 multiplicative에 비해 input side의 layer가 큰 경향이 있는데 그게 더 성능이 좋음.
-  <img src="https://www.dropbox.com/s/vsvjwn6fw8amhf7/Screenshot%202018-10-24%2021.34.18.png?dl=1">
+<figure>
+  <img src="https://www.dropbox.com/s/3y88bc0n16mmisf/Screenshot%202018-10-24%2021.24.21.png?dl=1">
+  <figcaption>
+      https://arxiv.org/pdf/1610.02915.pdf
+  </figcaption>
+</figure>
 
+<br>
+
+간단히 PyramidNet의 모델 구조를 코드로 살펴보자. 코드는 https://github.com/dnddnjs/pytorch-cifar10/tree/pyramid/pyramidnet 에 있다. PyramidNet의 residual block은 다음과 같다. 위에서 살펴봤듯이 기존 pre-actiovation residual block과는 다르게 relu가 하나밖에 없으며 대신 batch normalization이 3개가 있다. Shortcut connection으로는 이전 post에서 소개했던 IdentityPadding을 사용한다. 
+
+~~~python
+class ResidualBlock(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(ResidualBlock, self).__init__()
+        self.bn1 = nn.BatchNorm2d(in_channels)
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, 
+                                stride=stride, padding=1, bias=False)      
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, 
+                                stride=1, padding=1, bias=False)    
+        self.bn3 = nn.BatchNorm2d(out_channels)
+        self.relu = nn.ReLU(inplace=True)
+
+        self.down_sample = IdentityPadding(in_channels, out_channels, stride)
+            
+        self.stride = stride
+
+    def forward(self, x):
+        shortcut = self.down_sample(x)
+        out = self.bn1(x)
+        out = self.conv1(out)        
+        out = self.bn2(out)
+        out = self.relu(out)
+        out = self.conv2(out)
+        out = self.bn3(out)
+       
+        out += shortcut
+        return out
+~~~
+
+<br>
+
+IdentityPadding은 다음과 같다. 한가지 특이한 점은 IdentityPadding이 항상 적용되고 있기 때문에 down sampling이 일어날 때(stride가 2일 때) average pooling을 통해 shortcut을 지나는 feature map의 사이즈를 줄이는 것이다. 
+
+~~~python
+class IdentityPadding(nn.Module):
+    def __init__(self, in_channels, out_channels, stride=1):
+        super(IdentityPadding, self).__init__()
+
+        if stride == 2:
+            self.pooling = nn.AvgPool2d(kernel_size=2, stride=2, ceil_mode=True)
+        else:
+            self.pooling = None
+            
+        self.add_channels = out_channels - in_channels
+    
+    def forward(self, x):
+        out = F.pad(x, (0, 0, 0, 0, 0, self.add_channels))
+        if self.pooling is not None:
+            out = self.pooling(out)
+        return out
+~~~
+
+<br>
+
+PyramidNet 클래스의 __init__ 부분은 다음과 같다. 전체 네트워크의 깊이가 110이라면 num_layer는 18층이다. 각 block마다 width를 얼마나 늘려야하는지는 self.add_rate로 정의해놓았다. Additive 방식이며 self.get_layers 함수 내에서 사용된다. 
+
+~~~python
+# num_layers = (110 - 2)/6 = 18
+self.num_layers = num_layers
+self.addrate = alpha / (3*self.num_layers*1.0)
+
+self.conv1 = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, 
+                       stride=1, padding=1, bias=False)
+self.bn1 = nn.BatchNorm2d(16)
+
+# feature map size = 32x32
+self.layer1 = self.get_layers(block, stride=1)
+# feature map size = 16x16
+self.layer2 = self.get_layers(block, stride=2)
+# feature map size = 8x8
+self.layer3 = self.get_layers(block, stride=2)
+
+self.out_channels = int(round(self.out_channels))
+self.bn_out= nn.BatchNorm2d(self.out_channels)
+self.relu_out = nn.ReLU(inplace=True)
+self.avgpool = nn.AvgPool2d(8, stride=1)
+self.fc_out = nn.Linear(self.out_channels, num_classes)
+~~~
+
+<br>
+
+get_layers는 다음과 같다. 계속 out_channels를 in_channels보다 addrate만큼 증가시킨다. 이 때, channel 수로는 정수만 사용해야하므로 round와 int를 사용한다. 
+~~~python
+def get_layers(self, block, stride):
+    layers_list = []
+    for _ in range(self.num_layers - 1):
+        self.out_channels = self.in_channels + self.addrate
+        layers_list.append(block(int(round(self.in_channels)), 
+                                 int(round(self.out_channels)), 
+                                 stride))
+        self.in_channels = self.out_channels
+        stride=1
+
+    return nn.Sequential(*layers_list)
+~~~
+
+<br>
+
+PyramidNet을 학습한 그래프는 다음과 같다. 
+
+<img src="https://www.dropbox.com/s/h4k8599m4i2ze01/Screenshot%202018-11-22%2000.16.06.png?dl=1">
 
 <br>
 
@@ -283,3 +322,4 @@ like ensembles of relatively shallow networks" 논문에 따르면 ResNet은 여
 [^3]: https://arxiv.org/abs/1603.05027
 [^4]: https://arxiv.org/pdf/1207.0580.pdf
 [^5]: https://arxiv.org/pdf/1603.09382.pdf
+[^6]: https://arxiv.org/pdf/1605.06431.pdf
