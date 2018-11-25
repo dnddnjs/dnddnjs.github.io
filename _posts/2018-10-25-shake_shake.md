@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "CIFAR-10 정복 시리즈 3: Shake-Drop"
-subtitle: "Shake-Drop regularization"
+title: "CIFAR-10 정복 시리즈 3: Shake-Shake"
+subtitle: "Shake-Shake regularization"
 categories: cifar10
 tags: dl
 comments: true
