@@ -21,7 +21,7 @@ CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에�
 
 <br>
 
-## CIFAR-10 정복 시리즈 3: Shake-Drop
+## CIFAR-10 정복 시리즈 3: Shake-Shake
 이전 포스트에서는 ResNet의 구조를 변형시킨 모델을 알아봤다. PyramidNet은 학습할 때 error rate가 거의 0이라고 볼 수 있다. 학습 error rate에 비해 테스트 error rate는 여전히 높기 때문에 regularization에 대해 생각해봐야한다. CIFAR은 학습 데이터양이 적은데 비해 네트워크의 representation power는 높다. 따라서 **overfit**이 일어나기 쉽다. CIFAR에서의 overfit 문제를 해결하고자 하는 것이 **Shake-Shake regularization**[^0]이다. Shake-Shake는 네트워크의 forward pass와 backward pass에서 noise를 주는 방식이다. 하지만 Shake-Shake는 **ResNeXt**[^1]의 구조의 네트워크에만 적용할 수 있다. 이 post에서는 Shake-Shake를 살펴보도록 하겠다. 
 
 1. [ResNeXt](#resnext)
