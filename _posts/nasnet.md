@@ -2,8 +2,8 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 8: NASNet"
 subtitle: "Learning Transferable Architectures for Scalable Image Recognition"
-categories: cifar10
-tags: dl
+categories: 
+tags: 
 comments: true
 ---
 

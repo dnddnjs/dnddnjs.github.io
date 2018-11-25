@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "CIFAR-10 정복 시리즈 6: PyramidNet"
+title: "CIFAR-10 정복 시리즈 2: PyramidNet"
 subtitle: "Deep Pyramidal Residual Networks"
 categories: cifar10
 tags: dl
@@ -14,8 +14,7 @@ CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에�
   - [CIFAR-10 정복 시리즈 0: 시작하기](https://dnddnjs.github.io/cifar10/2018/10/07/start_cifar10/)
   - [CIFAR-10 정복 시리즈 1: ResNet](https://dnddnjs.github.io/cifar10/2018/10/09/resnet/)
   - [CIFAR-10 정복 시리즈 2: PyramidNet](https://dnddnjs.github.io/cifar10/2018/10/24/pyramidnet/)
-  - [CIFAR-10 정복 시리즈 3: Shake Regularizer](https://dnddnjs.github.io/cifar10/2018/10/13/shake_shake/)
-  - [CIFAR-10 정복 시리즈 4: ENAS](https://dnddnjs.github.io/cifar10/2018/11/03/enas/)
+  - [CIFAR-10 정복 시리즈 3: Shake-Shake](https://dnddnjs.github.io/cifar10/2018/10/25/shake_shake/)
 
 - 관련 코드 링크
   - [pytorch cifar10 github code](https://github.com/dnddnjs/pytorch-cifar10) 
@@ -318,9 +317,9 @@ def get_layers(self, block, stride):
 
 <br>
 
-PyramidNet을 학습한 그래프는 다음과 같다. 
+PyramidNet을 학습한 그래프는 다음과 같다. 최고 error rate는 4.81%를 기록했다. 
 
-<img src="https://www.dropbox.com/s/h4k8599m4i2ze01/Screenshot%202018-11-22%2000.16.06.png?dl=1">
+<img src="https://www.dropbox.com/s/lwdujgn4uuunuwj/Screenshot%202018-11-23%2000.12.55.png?dl=1">
 
 <br>
 

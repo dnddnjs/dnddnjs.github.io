@@ -2,8 +2,8 @@
 layout: post
 title: "CIFAR-10 정복 시리즈 7: Shake-Drop"
 subtitle: "SHAKEDROP REGULARIZATION"
-categories: cifar10
-tags: dl
+categories: 
+tags: 
 comments: true
 ---
 

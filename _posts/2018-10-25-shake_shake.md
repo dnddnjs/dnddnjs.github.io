@@ -14,7 +14,7 @@ CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에�
   - [CIFAR-10 정복 시리즈 0: 시작하기](https://dnddnjs.github.io/cifar10/2018/10/07/start_cifar10/)
   - [CIFAR-10 정복 시리즈 1: ResNet](https://dnddnjs.github.io/cifar10/2018/10/09/resnet/)
   - [CIFAR-10 정복 시리즈 2: PyramidNet](https://dnddnjs.github.io/cifar10/2018/10/24/pyramidnet/)
-  - [CIFAR-10 정복 시리즈 3: Shake-Drop](https://dnddnjs.github.io/cifar10/2018/10/25/shake_drop/)
+  - [CIFAR-10 정복 시리즈 3: Shake-Shake](https://dnddnjs.github.io/cifar10/2018/10/25/shake_shake/)
 
 - 관련 코드 링크
   - [pytorch cifar10 github code](https://github.com/dnddnjs/pytorch-cifar10) 
@@ -22,20 +22,22 @@ CIFAR-10 정복하기 시리즈에서는 딥러닝이 CIFAR-10 데이터셋에�
 <br>
 
 ## CIFAR-10 정복 시리즈 3: Shake-Drop
-이전 포스트에서는 ResNet의 구조를 변형시킨 모델을 알아봤다. PyramidNet은 학습할 때 error rate가 거의 0이라고 볼 수 있다. 학습 error rate에 비해 테스트 error rate는 여전히 높기 때문에 regularization에 대해 생각해봐야한다. CIFAR은 학습 데이터양이 적은데 비해 네트워크의 representation power는 높다. 따라서 **overfit**이 일어나기 쉽다. CIFAR에서의 overfit 문제를 해결하고자 하는 것이 **Shake-Shake regularization**[^0]과 **Shake-Drop Regularization**[^1]이다. Shake-Shake는 네트워크의 forward pass와 backward pass에서 noise를 주는 방식이다. 하지만 Shake-Shake는 **ResNeXt**[^2]의 구조의 네트워크에만 적용할 수 있다. 그런 단점을 보완한 것이 Shake-Drop이다. Shake-Drop은 **Cutout**[^3]이라는 새로운 data augmentation 방법을 사용하기 때문에 Cutout도 살펴볼 것이다. Shake-Drop은 CIFAR-10에서 2.31% error rate를 달성했다.
+이전 포스트에서는 ResNet의 구조를 변형시킨 모델을 알아봤다. PyramidNet은 학습할 때 error rate가 거의 0이라고 볼 수 있다. 학습 error rate에 비해 테스트 error rate는 여전히 높기 때문에 regularization에 대해 생각해봐야한다. CIFAR은 학습 데이터양이 적은데 비해 네트워크의 representation power는 높다. 따라서 **overfit**이 일어나기 쉽다. CIFAR에서의 overfit 문제를 해결하고자 하는 것이 **Shake-Shake regularization**[^0]이다. Shake-Shake는 네트워크의 forward pass와 backward pass에서 noise를 주는 방식이다. 하지만 Shake-Shake는 **ResNeXt**[^1]의 구조의 네트워크에만 적용할 수 있다. 이 post에서는 Shake-Shake를 살펴보도록 하겠다. 
 
-1. [Shake-Shake](#shake-shake)
-2. [Shake-Drop](#shake-drop)
+1. [ResNeXt](#resnext)
+2. [FractalNet](#fractalnet)
+3. [Shake-Shake](#shake-shake)
+4. [Code Review](#code-review)
+5. [Squeeze and Excitation](#squeeze-and-excitation)
 
 
 <br/>
 
-## Shake-Shake
-딥러닝에서 regularization은 overfit을 방지하기 위한 방법으로 많이 사용되고 있다. 그동안 사용되어왔던 regularization 효과를 가지는 방법들로는 weight decay, dropout, batch-normalization, SGD 등이 있다. PyramidNet 포스트에서 살펴봤던 ResDrop 또한 regularization에 해당한다. 네트워크 자체는 점점 강력해지지만 generalization 성능은 그만큼 따라오지 않기 때문에 이 이외에 추가적인 노력이 이어졌다. 기존 residual block는 2 branch로 구성되어있다. 한 branch는 idenity mapping이고 다른 branch는 nonlinear computation이 이뤄진다. **ResNeXt**는 이런 기본적인 구성을 벗어나서 2개의 branch 이상의 n개의 branch를 사용한다. **FractalNet**[^4]의 경우도 ResNeXt와 유사하게 여러 개의 subpath를 사용한다. FractalNet은 drop path라는 regularization 방법을 사용한다. **Shake-Shake**는 ResNeXt와 drop path를 적절히 합친 것이라고 볼 수 있다. 따라서 Shake-Shake를 살펴보기 전에 ResNeXt와 FractalNet을 간단히 살펴보겠다. 
+딥러닝에서 regularization은 overfit을 방지하기 위한 방법으로 많이 사용되고 있다. 그동안 사용되어왔던 regularization 효과를 가지는 방법들로는 weight decay, dropout, batch-normalization, SGD 등이 있다. PyramidNet 포스트에서 살펴봤던 ResDrop 또한 regularization에 해당한다. 네트워크 자체는 점점 강력해지지만 generalization 성능은 그만큼 따라오지 않기 때문에 이 이외에 추가적인 노력이 이어졌다. 기존 residual block는 2 branch로 구성되어있다. 한 branch는 idenity mapping이고 다른 branch는 nonlinear computation이 이뤄진다. **ResNeXt**는 이런 기본적인 구성을 벗어나서 2개의 branch 이상의 n개의 branch를 사용한다. **FractalNet**[^2]의 경우도 ResNeXt와 유사하게 여러 개의 subpath를 사용한다. FractalNet은 drop path라는 regularization 방법을 사용한다. **Shake-Shake**는 ResNeXt와 drop path를 적절히 합친 것이라고 볼 수 있다. 따라서 Shake-Shake를 살펴보기 전에 ResNeXt와 FractalNet을 간단히 살펴보겠다. 
 
 <br>
 
-### ResNeXt
+## ResNeXt
 ResNeXt는 기본적으로 **multi-branch ResNet이**라고 보면 된다. 기존에 residual block을 design할 때 activation의 순서를 바꿔보거나(pre-activation ResNet) 혹은 convolution의 filter 수를 변화시켰다(WideResNet, PyramidNet). 하지만 ResNeXt는 그 이외에 **cardinality**라는 개념을 소개한다. 다음 그림에서 왼쪽이 일반적인 residual block이다. 오른쪽이 ResNeXt의 residual block이다. Shortcut connection은 그대로 하나이지만 residual 부분이 여러개인 것을 볼 수 있다. Cardinality는 residual의 개수이다. 여러 path의 output은 summation으로 합친다.
 
 <figure>
@@ -47,7 +49,7 @@ ResNeXt는 기본적으로 **multi-branch ResNet이**라고 보면 된다. 기�
 
 <br>
 
-ResNeXt의 multi-branch는 GoogLeNet의 **Inception module**[^5]과 상당히 유사하다. 다음 그림의 Inception module이다. ResNeXt의 residual block은 Inception module과 다르게 각 path마다 모두 동일한 구조를 지니며 dimension이 모두 같다. Inception module은 hyper parameter가 많기 때문에 디자인하기 어렵다면 ResNeXt는 단순히 몇 개의 path를 사용하는지만 설정하기 때문에 상당히 간편하다. 
+ResNeXt의 multi-branch는 GoogLeNet의 **Inception module**[^3]과 상당히 유사하다. 다음 그림의 Inception module이다. ResNeXt의 residual block은 Inception module과 다르게 각 path마다 모두 동일한 구조를 지니며 dimension이 모두 같다. Inception module은 hyper parameter가 많기 때문에 디자인하기 어렵다면 ResNeXt는 단순히 몇 개의 path를 사용하는지만 설정하기 때문에 상당히 간편하다. 
 
 <figure>
   <img src="https://www.dropbox.com/s/frvr8g5vaojayw7/Screenshot%202018-11-23%2020.04.08.png?dl=1">
@@ -59,7 +61,7 @@ ResNeXt의 multi-branch는 GoogLeNet의 **Inception module**[^5]과 상당히 �
 <br>
 
 
-### FractalNet
+## FractalNet
 FractalNet은 Residual을 학습시키는 기존의 ResNet 변형체들과 다른 방식이다. FractalNet은 Residual을 학습하는 방식을 사용하지 않아도 네트워크를 깊게 쌓을 수 있다는 것을 보여준다. 아래 그림이 FractalNet의 fractal block의 구조를 보여준다. 가장 왼쪽은 fractal block을 형성하는 기본적인 방법을 보여준다. 보통 $$f_C$$로는 convolution을 사용하는데 확장할 때는 하나의 convolution이 오른쪽에 두 개로 합쳐진다. 그 다음 왼쪽에 다른 하나의 convolution을 붙이고 그 출력들을 join 연산을 통해 합친다. 이렇게 만든 fractal block은 가운데 그림과 같다. Residual block에서 볼 수 있는 residual과 identity mapping의 구조는 볼 수 없다. 
 
 <figure>
@@ -93,7 +95,7 @@ FractalNet은 Residual을 학습시키는 기존의 ResNet 변형체들과 다�
 
 <br>
 
-### Shake-Shake
+## Shake-Shake
 Shake-Shake는 ResNeXt와 Drop-path를 합친 것이라고 볼 수 있다. ResNeXt에서 여러 branch의 output을 합칠 때 단순히 summation으로 합친다. 하지만 Shake-Shake에서는 stochastic affine transform을 통해서 합치겠다는 것이 아이디어이다. 다음 그림이 Shake-Shake의 작동 방식을 알려준다. ResNeXt의 경우 32개의 branch까지도 사용했는데 Shake-Shake에서는 2개의 branch만 사용한다. 이 2개의 branch를 사용해서 regularization 하는 것이 핵심이다. Shake-Shake는 forward pass에서 한 번, backward pass에서 한 번 **stochastic affine transform**을 수행한다. 이 affine transform은 일종의 **augmentation**이라고 볼 수 있다. 
 
 <figure>
@@ -124,7 +126,7 @@ Shake-Shake 모델은 3개의 stage를 가지는데 각 stage는 4개의 residua
 
 <br>
 
-### Code Review
+## Code Review
 코드에서는 Shake-Shake 26 2-32d 모델을 살펴볼 것이다. Shake-Shake의 residual block은 다음과 같다. 각 부분을 따로 살펴보겠다. 
 
 ~~~python
@@ -224,7 +226,7 @@ def forward(self, x):
 
 <br>
 
-self.shake_shake는 ShakeShake라는 클래스를 통해 정의된다. ShakeShake는 Shake-Shake 코드의 핵심이라고 할 수 있다. 이 코드를 작성할 때 pytorch tutorial[^6]과 pytorch discuss[^7]를 참고했다. 원래 backpropagation 할 때는 forward pass에서 곱해졌던 상수값을 기억해서 gradient에 곱해준다. 하지만 Shake-Shake에서는 forward pass와 backward pass에서 다른 상수값을 사용하기 때문에 이와 같이 custom을 해야 한다. ctx.save_for_backward에 인자로 넣으면 backward 할 때 그 값들을 호출할 수 있다. backward 함수에서 아까 저장했던 tensor를 불러온다. 불러온 $$\beta$$값을 각각의 branch로 내려가는 두 개의 gradient에 곱해준다. 한 gradient에는 $$\beta$$를 곱하고 한 branch에는 $$1 - \beta$$를 곱해준다. 
+self.shake_shake는 ShakeShake라는 클래스를 통해 정의된다. ShakeShake는 Shake-Shake 코드의 핵심이라고 할 수 있다. 이 코드를 작성할 때 pytorch tutorial[^4]과 pytorch discuss[^5]를 참고했다. 원래 backpropagation 할 때는 forward pass에서 곱해졌던 상수값을 기억해서 gradient에 곱해준다. 하지만 Shake-Shake에서는 forward pass와 backward pass에서 다른 상수값을 사용하기 때문에 이와 같이 custom을 해야 한다. ctx.save_for_backward에 인자로 넣으면 backward 할 때 그 값들을 호출할 수 있다. backward 함수에서 아까 저장했던 tensor를 불러온다. 불러온 $$\beta$$값을 각각의 branch로 내려가는 두 개의 gradient에 곱해준다. 한 gradient에는 $$\beta$$를 곱하고 한 branch에는 $$1 - \beta$$를 곱해준다. 
 
 
 ~~~python
@@ -336,7 +338,7 @@ class ShakeResNet(nn.Module):
 
 <br>
 
-일반적인 ResNet과 또 다른 점은 학습 epoch 수이다. Shake-Shake는 forward pass와 backward pass에 일종의 노이즈를 주입하기 때문에 regularization 효과를 보는 대신 학습이 느려진다. 따라서 기존 ResNet과 같이 일정 update step마다 learning rate를 0.1배 하는 것은 맞지 않다. 대신 **cosine annealing**[^8]을 사용한다. Cosine annealing은 learning rate를 cosine 함수의 형태로 decay 하겠다는 것이다. 다음 그림이 cosine annealing에서 learning rate가 iteration에 따라 어떻게 감소하는지를 보여준다. 처음 몇 epoch 동안은 높은 learning rate로 빠르게 local minimum을 찾고 그 이후 learning rate를 decay하면서 minimum에 가까이 다가가고 마지막 epcoh 동안에는 천천히 움직이다가 학습을 마무리한다. 
+일반적인 ResNet과 또 다른 점은 학습 epoch 수이다. Shake-Shake는 forward pass와 backward pass에 일종의 노이즈를 주입하기 때문에 regularization 효과를 보는 대신 학습이 느려진다. 따라서 기존 ResNet과 같이 일정 update step마다 learning rate를 0.1배 하는 것은 맞지 않다. 대신 **cosine annealing**[^6]을 사용한다. Cosine annealing은 learning rate를 cosine 함수의 형태로 decay 하겠다는 것이다. 다음 그림이 cosine annealing에서 learning rate가 iteration에 따라 어떻게 감소하는지를 보여준다. 처음 몇 epoch 동안은 높은 learning rate로 빠르게 local minimum을 찾고 그 이후 learning rate를 decay하면서 minimum에 가까이 다가가고 마지막 epcoh 동안에는 천천히 움직이다가 학습을 마무리한다. 
 
 <figure>
   <img src="https://www.dropbox.com/s/6rcn2w05zye3yhz/Screenshot%202018-11-26%2000.13.33.png?dl=1" width="400px">
@@ -375,96 +377,16 @@ Shake-Shake 네트워크의 학습 과정은 다음과 같다. 다른 네트워�
 
 <br>
 
+## Squeeze and Excitation
 
-## Shake-Drop
 
-### Abstract
-- 이 논문은 shake-shake가 ResNeXt에만 적용가능하다는 단점을 개선하기 위함
-- ShakeDrop은 ResNeXt 이외에도 ResNet, Wide ResNet, PyramidNet에 다 적용가능
-- ShakeDrop만의 특징은 conv layer의 output에 - 도 곱할 수 있다는 점. strong disturb learning
-- 그래서 CIFAR10에서 2.31 % error rate 달성
-
-<br/>
-
-### Introduction
-- shake-shake의 단점
-  - multi branch 구조에만 적용가능
-  - memory efficient 하지 않음
-- 이 부분을 개선한 ShakeDrop regularization 을 제안함
-- shake-shake에 영감을 받아 만들었지만 disturbing하는 메카니즘은 완전 다름
-- forwarding pass에서 -도 곱한다
-- forward pass와 backward pass에서 conv layer output에 곱하는 값에 다른 값을 사용
-- 그러면 학습이 불안정해지는데 따라서 ResDrop을 차용함
-
-<br/>
-
-### Existing Methods Required to introduce the proposed method
-- Deep Network Architecture
-  - ResNet : open the door to very deep CNNs
-  - PyramidNet : vanilla resnet 중에 가장 높은 accuracy (cifar 데이터에서)
-  - Wide ResNet : channel을 늘려서 성능 개선
-  - ResNeXt : g(x) = x + f1(x) + f2(x)
-
-- regularization
-  - stochastic depth
-  - shake-shake
-
-<img src="https://www.dropbox.com/s/r4fsxd1z9oioeel/Screenshot%202018-10-20%2013.58.32.png?dl=1">
-
-<br/>
-
-### Proposed Method
-- shake-shake는 forward pass에서 두 branch 사이를 interpolation
-- feature space 상에서의 interpolation은 synthesizing data라고 해석할 수 있음 (이런 해석도 가능하구나)
-- backward pass에서의 random variable은 모델이 오랫동안 학습할 수 있도록 해준다. 즉 너무 일찍 local에 빠지지 않도록 regularize한다는 이야기
-- shake-shake는 이것을 하기 위해 2개 이상의 branch가 필요
-  - 그러한 구조 때문에 memory를 많이 차지
-  - 측정 결과 비슷한 파라메터 수를 가진 ResNeXt 모델에 비해 shake-shake는 11% 메모리를 더 사용
-- shake-shake와 같은 regularization이 1 branch에서도 가능하게 하기 위해서는 단순한 interpolation 방법말고 다른 무언가가 필요
-- 그 방법은 feature space 상에서 data를 synthesize 할 수 있어야함
-- 일단 다음을 1-branch shake라고 부르겠음
-  - pyramidnet 에 적용해봤는데 결과는 상당히 나빴음
-<img src="https://www.dropbox.com/s/x4q3gw6y8m9x3sd/Screenshot%202018-10-20%2014.14.08.png?dl=1">
-
-- 왜 1-branch shake가 실패했을까? 우리가 생각하기에는 너무 강한 perturbation이 가해졌기 때문이다. 하지만 perturbation을 약하게 하면 regularization의 효과가 줄어든다. 딜레마 (논문이 참 찰지다 빠져든다)
-- 그래서 우리는 ResDrop의 아이디어를 쓰기로 했다. 대신 ResDrop을 그대로 사용한다면 너무 강한 perturbation이 일어나기 때문에 서로 다른 두 개의 network 사이를 switch하는 방식을 택하기로 했다.
-- 이제 하이라이트!. PyramidNet과 PyramidNet+1-branch Shake 사이를 랜덤하게 오갈 것이다. 다음 식으로 그걸 할 수 있다. Bl은 linear decay rule이 적용되는 bernoulli random variable이다.
-
-<img src="https://www.dropbox.com/s/bv20uznlczyob4q/Screenshot%202018-10-20%2014.31.28.png?dl=1">
-
-- backward pass에서는 alpha 자리에 beta를 사용한다.
-
-<img src="https://www.dropbox.com/s/k9rwk5ekgvev3q5/Screenshot%202018-10-20%2014.39.01.png?dl=1">
-
-<br/>
-
-### Experiments
-- CIFAR 100 데이터에 대해서 alpha beta의 range를 바꿔가며 테스트. alpha는 [-1, 1] 사이의 값을 사용하고 beta는 [0, 1] 사이의 값을 사용하는 것이 제일 성능이 좋음.
-<img src="https://www.dropbox.com/s/rybln8m5fmip910/Screenshot%202018-10-20%2014.42.09.png?dl=1">
-
-- scaling factor 적용하는 방법에 대해서도 테스트함. Pixel은 scaling factor가 each residual block의 each element에 적용된다는 것. Pixel이 가장 성능은 좋지만 메모리를 많이 먹기 때문에 Image 방법을 사용함. 
-
-<img src="https://www.dropbox.com/s/ppjgqxkxckqhlag/Screenshot%202018-10-20%2014.49.36.png?dl=1">
-
-- regularization 방법을 비교함. 이 때 ResNet, PyramidNet, Wide ResNet, ResNeXt에서 각각 비교. 하나 중요한 점은 residual block이 BN으로 끝나야 한다는 것. 그러지 않으면 alpha beta의 값이 커질 때 학습이 발산할 수 있다. 따라서 EraseReLU가 우리 방법과 상당히 잘 맞음(Resnet과 ResNeXt 에서만). 결론은 Pyramidnet + shakedrop이 가장 성능 좋음
-
-<img src="https://www.dropbox.com/s/nzp5z87drritxiv/Screenshot%202018-10-20%2014.56.07.png?dl=1">
-
-- 가장 중요한 CIFAR10에서의 성능! 두 가지가 필요하다. longer learning은 cosine annealing 을 learning rate에 적용해서 1800 epoch 정도 학습한다. image preprocesiing은 learning image의 부분을 랜덤하게 채운다. (음.. 이건 잘 모르겠다). 결론적으로 CIFAR10 데이터에서 2.31 % error rate를 달성!
-
-<img src="https://www.dropbox.com/s/0c8ahsplod8asry/Screenshot%202018-10-20%2015.01.05.png?dl=1">
-
-- 다음은 네트워크 architecture
-<img src="https://www.dropbox.com/s/n1ls9dsr5cqn5qf/Screenshot%202018-10-20%2015.02.08.png?dl=1">
-
+<br> 
 
 ### 참고문헌
 [^0]: https://arxiv.org/pdf/1705.07485.pdf
-[^1]: https://arxiv.org/pdf/1802.02375.pdf
-[^2]: https://arxiv.org/pdf/1611.05431.pdf
-[^3]: https://arxiv.org/pdf/1708.04552.pdf
-[^4]: https://arxiv.org/pdf/1605.07648.pdf
-[^5]: https://arxiv.org/pdf/1409.4842.pdf
-[^6]: https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_function.html
-[^7]: https://discuss.pytorch.org/t/why-input-is-tensor-in-the-forward-function-when-extending-torch-autograd/9039
-[^8]: https://arxiv.org/pdf/1608.03983.pdf
+[^1]: https://arxiv.org/pdf/1611.05431.pdf
+[^2]: https://arxiv.org/pdf/1605.07648.pdf
+[^3]: https://arxiv.org/pdf/1409.4842.pdf
+[^4]: https://pytorch.org/tutorials/beginner/examples_autograd/two_layer_net_custom_function.html
+[^5]: https://discuss.pytorch.org/t/why-input-is-tensor-in-the-forward-function-when-extending-torch-autograd/9039
+[^6]: https://arxiv.org/pdf/1608.03983.pdf
