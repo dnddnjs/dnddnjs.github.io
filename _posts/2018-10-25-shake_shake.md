@@ -371,9 +371,9 @@ def cosine_annealing_scheduler(optimizer, epochs, lr):
 
 <br>
 
-Shake-Shake 네트워크의 학습 과정은 다음과 같다. 다른 네트워크에 비해 1800 epoch을 학습하기 때문에 학습이 오래 걸린다. 
+Shake-Shake 네트워크의 학습 과정은 다음과 같다. 다른 네트워크에 비해 1800 epoch을 학습하기 때문에 학습이 오래 걸린다. Best test error는 3.79%이다. 
 
-<img src="https://www.dropbox.com/s/llsful1i8g03qg4/Screenshot%202018-11-26%2000.22.14.png?dl=1">
+<img src="https://www.dropbox.com/s/1ptvuux24wr5qwj/Screenshot%202018-11-27%2014.42.56.png?dl=1">
 
 <br>
 

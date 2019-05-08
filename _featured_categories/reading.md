@@ -4,7 +4,7 @@ title: Reading
 slug: reading
 menu: true
 submenu: false
-order: 5
+order: 6
 description: >
   일기장
 ---
