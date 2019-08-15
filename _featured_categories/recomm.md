@@ -1,9 +1,9 @@
 ---
 layout: list
-title: NLP
-slug: nlp
+title: Recommendation
+slug: recomm
 menu: true
 submenu: true
-order: 3
+order: 8
 description: >
 ---
