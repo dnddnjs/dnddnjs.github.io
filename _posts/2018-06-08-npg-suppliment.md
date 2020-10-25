@@ -7,11 +7,8 @@ tags: rl
 comments: true
 ---
 
-# Natural Policy Gradient 보충 자료
-
 ## 1. CS294의 자료
 cs294에서도 NPG에 대한 내용을 소개한다. cs294 lecture 13에 해당하는 내용이다. 링크는 다음과 같다. 
-
 - 링크: [http://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_13_advanced_pg.pdf](http://rail.eecs.berkeley.edu/deeprlcourse-fa17/f17docs/lecture_13_advanced_pg.pdf)
 
 사실 이 피피티를 이해하려면 TRPO에 대한 내용도 알아야한다. 여기서 말하는 NPG는 Natural Policy Gradient에서 이야기하는 알고리즘이라기보다는 TRPO 저자 혹은 강의의 강사가 이야기하는 NPG이다. surrogate loss function이 들어가며 step size에 대한 구체적인 수식도 집어넣었다. 이 부분들을 감안하더라도 이 부분은 NPG에 대한 이해를 돕기 때문에 살펴보는 것에 의미가 있다.

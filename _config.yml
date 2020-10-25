@@ -2,7 +2,7 @@
 #  User configuration
 # -----------------------------------------------------------------------------
 
-title:               Woongwon Lee
+title:               웅사이다
 
 # The unique resource location of your page.
 # Set to `https://<username>.github.io` when hosting on GitHub Pages
@@ -13,7 +13,7 @@ url:                 https://dnddnjs.github.io
 baseurl:             ""
 
 # A very short description of your page
-tagline:             Machine Learning Engineer
+tagline:             천천히 성장하자꾸나
 
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
@@ -56,7 +56,7 @@ copyright:           '&copy; 2018. by Woongwon Lee'
 permalink:           pretty
 
 # Pagination configuration (used by the `blog` layout)
-paginate:            5
+paginate:            10
 paginate_path:       '/page-:num/'
 
 # If you are upgrading form a v5 verison of Hydejack, uncomment the two lines below,
@@ -128,3 +128,5 @@ compress_html:
 
 sass:
   style:             compressed
+
+excerpt_seperator:  <!---break--->

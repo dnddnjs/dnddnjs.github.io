@@ -3,17 +3,14 @@ layout: post
 title:  "추천 시스템 Basics"
 subtitle: "추천 시스템 공부를 시작하는 분을 위한 안내서"
 categories: recomm
-tags: 
+tags: recomm
 comments: true
 ---
 
-# 추천 시스템 Basics
 ## 추천 시스템이란
-
 **특정 사용자**가 **관심을 가질 만한 정보**를 추천하는 것이다. Information filtering의 일종이라고 볼 수 있다. 여기서 말하는 **관심**은 정의하기 나름이다. 아이템의 종류가 동영상이라면 동영상을 시청하는 것이 관심의 표현일 것이다. 아이템의 종류가 쇼핑에 관련된 제품이라면 구매나 장바구니에 넣는 것이 관심을 나타낸다. 얼마나 관심을 가지는지도 정의하기 나름이 된다. 유튜브의 추천 시스템은 다음 그림과 같이 메인피드에서 내가 볼 만한 동영상을 보여준다. 유튜브에서는 동영상을 시청한 시간을 관심의 척도로 사용한다.
 
 <img src='/assets/img/Untitled-6bef25bc-9a2e-45a7-bb61-4e0a639b6082.png' width="400">
-
 
 [https://www.idownloadblog.com/2016/04/26/youtube-new-homepage-design/](https://www.idownloadblog.com/2016/04/26/youtube-new-homepage-design/)
 

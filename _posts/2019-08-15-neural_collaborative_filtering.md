@@ -7,10 +7,7 @@ tags:
 comments: true
 ---
 
-# Neural Collaborative Filtering
-
 ### 주요 내용
-
 - 논문이 풀고자 하는 문제는 implicit feedback을 토대로 item을 user에게 추천하는 것
 - deep learning을 matrix factorization에서 user-item interaction 부분에 적용하는 것
 - dot-product(GMF)와 MLP의 장점을 모두 살린 네트워크 구조 사용

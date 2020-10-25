@@ -7,8 +7,6 @@ tags: rl
 comments: true
 ---
 
-# A Natural Policy Gradient [2001]
-
 <img src="https://www.dropbox.com/s/it82tfhfmhg9uwp/Screenshot%202018-06-10%2010.58.52.png?dl=1">
 
 - 논문 저자: Sham Kakade

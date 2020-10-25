@@ -7,8 +7,6 @@ tags: rl
 comments: true
 ---
 
-## 논문 제목: Kickstartking Deep Reinforcement Learning [2018 March]
-
 <img src="https://www.dropbox.com/s/b0dp6tse95zudzw/Screenshot%202018-10-09%2020.54.11.png?dl=1">
 - 논문 저자: Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun(Microsoft Research)
 - 논문 링크: [https://arxiv.org/pdf/1512.03385.pdf](https://arxiv.org/pdf/1512.03385.pdf)
