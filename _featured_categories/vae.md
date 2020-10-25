@@ -1,9 +1,10 @@
 ---
 layout: list
-title: Recommendation
-slug: recomm
+title: VAE
+slug: vae
 menu: true
 submenu: true
-order: 4
+order: 2
 description: >
+  VAE 튜토리얼
 ---
