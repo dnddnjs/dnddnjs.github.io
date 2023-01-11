@@ -42,7 +42,7 @@
     "y-drawer": "6.1.1",
     "y-push-state": "6.3.0",
     "lodash": ">=4.17.5",
-    "debug": ">=2.6.9",
+    "debug": ">=3.1.0",
     "randomatic": ">=3.0.0",
     "cached-path-relative": ">=1.0.2"
   },
